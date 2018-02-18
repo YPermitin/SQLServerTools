@@ -11,9 +11,12 @@
 * [Exploring Your SQL Server Databases with T-SQL](https://www.red-gate.com/simple-talk/sql/database-administration/exploring-your-sql-server-databases-with-t-sql/) -- статья о исследование сервера MS SQL Server с помощью T-SQL ([Scott Swanberg](https://www.red-gate.com/simple-talk/author/scott-swanberg/))
 * [Утки, Таиланд и T-SQL… или что может подстерегать программистов при работе с SQL Server?](https://habrahabr.ru/post/315142/) 
  -- все что нужно знать о странностях MS SQL Server ([Sergey Syrovatchenko](https://habrahabr.ru/users/AlanDenton/))
+* [Useful links, scripts, tools and best practice for Microsoft SQL Server Database](https://github.com/ktaranov/sqlserver-kit) - полезные материалы из разряда "best practice" для MS SQL Server ([Konstantin
+Ktaranov](https://github.com/ktaranov))
 
 # Информация о производительности:
 
+* [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настрить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
 * [Высокая нагрузка дисковой подсистемы на сервере СУБД MS SQL Server](https://its.1c.ru/db/metod8dev#content:5813:hdoc)
 * [Высокая нагрузка на CPU MS SQL Server](https://its.1c.ru/db/metod8dev/content/5861/hdoc)
 
