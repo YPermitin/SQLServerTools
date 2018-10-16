@@ -30,3 +30,9 @@ GO
 ALTER TABLE [dbo].[CustomSettingsMaintenance]
   ADD CONSTRAINT [FK_UnplatformIndexMaintenance_To_EventType] FOREIGN KEY ([EventType]) REFERENCES [dbo].[EventType] ([ID])
 GO
+
+ALTER TABLE [dbo].[CustomSettingsMaintenance]  WITH CHECK ADD  CONSTRAINT [CkeckIndexNameTemplate] CHECK  (([Command] like '%{IndexName}%'))
+GO
+
+ALTER TABLE [dbo].[CustomSettingsMaintenance]  WITH CHECK ADD  CONSTRAINT [CkeckTableNameTemplate] CHECK  (([Command] like '%{TableName}%'))
+GO
