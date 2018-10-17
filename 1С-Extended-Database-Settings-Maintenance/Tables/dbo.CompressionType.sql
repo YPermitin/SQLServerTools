@@ -4,7 +4,7 @@
 -- Description:	Таблица для хранения списка доступных методов сжатия объектов баз данных
 -- =============================================================================================================
 CREATE TABLE [dbo].[CompressionType] (
-  [ID] [int] IDENTITY,
+  [ID] [int] NOT NULL,
   [Name] [nvarchar](150) NOT NULL,
   CONSTRAINT [PK_CompressionType] PRIMARY KEY CLUSTERED ([ID])
 )

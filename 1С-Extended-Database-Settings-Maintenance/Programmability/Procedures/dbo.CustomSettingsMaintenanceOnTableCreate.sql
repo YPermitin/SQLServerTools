@@ -55,8 +55,14 @@ BEGIN
     'USE ' + @DatabaseName + ';' + '
 
 				' + @cmd + '
-								
-				ALTER INDEX [{IndexName}] ON [dbo].[{TableName}] DISABLE;
+				
+				IF EXISTS(SELECT [name]
+						FROM sys.indexes 
+						WHERE [name] LIKE ''{IndexName}'' 
+						AND OBJECT_NAME(object_id) = ''{TableName}'')
+				BEGIN
+					ALTER INDEX [{IndexName}] ON [dbo].[{TableName}] DISABLE;
+				END
 				';
 
     SET @cmd = REPLACE(@cmd, '{TableName}', @TableName)

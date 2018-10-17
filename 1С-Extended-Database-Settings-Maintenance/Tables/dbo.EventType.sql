@@ -4,7 +4,7 @@
 -- Description:	Таблица для хранения списка возможных типов событий записей логов
 -- =============================================================================================================
 CREATE TABLE [dbo].[EventType] (
-  [ID] [int] IDENTITY,
+  [ID] [int] NOT NULL,
   [Name] [nvarchar](250) NOT NULL,
   CONSTRAINT [PK_EventType] PRIMARY KEY CLUSTERED ([ID])
 )
