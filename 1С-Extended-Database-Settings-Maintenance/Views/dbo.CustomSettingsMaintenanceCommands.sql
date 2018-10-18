@@ -1,7 +1,3 @@
-﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
-GO
-
-  
 -- =============================================================================================================
 -- Author:		Permitin Y.A. (ypermitin@yandex.ru)
 -- Create date: 2018-10-15
@@ -10,13 +6,13 @@ GO
 CREATE VIEW [dbo].[CustomSettingsMaintenanceCommands]
 WITH SCHEMABINDING
 AS
-SELECT
-  [DatabaseName]
- ,[TableName]
- ,[IndexName]
- ,[Description]
- ,[IsActive]
- ,'/*
+	SELECT
+	  [DatabaseName]
+	 ,[TableName]
+	 ,[IndexName]
+	 ,[Description]
+	 ,[IsActive]
+	 ,'/*
 		  Будет создан индекс ''' + [IndexName] + ''' для таблицы ''' + [TableName] + '''
 		  Описание: ' + COALESCE([Description], '--') + '
 		  */' + '
@@ -27,7 +23,7 @@ SELECT
 			where i.Name = ''' + [IndexName] + '''
 				and I.Object_id = OBJECT_ID(''' + [TableName] + '''))	
 			BEGIN
-		  ' + TRIM(REPLACE(REPLACE([Command], '{TableName}', [TableName]), '{IndexName}', [IndexName])) + '
+		  ' + LTRIM(RTRIM(REPLACE(REPLACE([Command], '{TableName}', [TableName]), '{IndexName}', [IndexName]))) + '
 		  END
 		  GO' AS [CreateIndexCommand]
  ,'/*
