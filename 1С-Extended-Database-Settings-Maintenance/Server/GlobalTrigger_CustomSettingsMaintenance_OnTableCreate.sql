@@ -1,17 +1,10 @@
-USE [master]
-GO
-
 -- =============================================================================================================
 -- Author:		Permitin Y.A. (ypermitin@yandex.ru)
 -- Create date: 2018-10-15
 -- Description:	Глобальный тригер на сервере для события создания таблицы
 -- =============================================================================================================
-SET ANSI_NULLS ON
+USE [master]
 GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 
 CREATE TRIGGER [CustomSettingsMaintenance_OnTableCreate]
 ON ALL SERVER 
@@ -26,8 +19,8 @@ BEGIN
 		@DatabaseName SYSNAME,
 		@cmd nvarchar(max)
 
-    SELECT @TableName = EVENTDATA().value('(/EVENT_INSTANCE/ObjectName)[1]','SYSNAME')
-    SELECT @SchemaName = EVENTDATA().value('(/EVENT_INSTANCE/SchemaName)[1]','SYSNAME')
+    	SELECT @TableName = EVENTDATA().value('(/EVENT_INSTANCE/ObjectName)[1]','SYSNAME')
+   	SELECT @SchemaName = EVENTDATA().value('(/EVENT_INSTANCE/SchemaName)[1]','SYSNAME')
 	SELECT @DatabaseName = EVENTDATA().value('(/EVENT_INSTANCE/DatabaseName)[1]','SYSNAME');
 
 	EXEC [ExtendedSettingsFor1C].[dbo].[CustomSettingsMaintenanceOnTableCreate]
