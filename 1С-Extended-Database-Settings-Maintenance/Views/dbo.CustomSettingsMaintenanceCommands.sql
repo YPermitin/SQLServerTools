@@ -26,7 +26,7 @@ AS
 		  ' + LTRIM(RTRIM(REPLACE(REPLACE([Command], '{TableName}', [TableName]), '{IndexName}', [IndexName]))) + '
 		  END
 		  GO' AS [CreateIndexCommand]
- ,'/*
+ 	,'/*
 		  Проверка индекса ''' + [IndexName] + ''' для таблицы ''' + [TableName] + '''
 		  Описание: ' + COALESCE([Description], '--') + '
 		  */' + '
