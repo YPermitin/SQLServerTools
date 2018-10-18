@@ -1,6 +1,3 @@
-﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
-GO
-
 -- =============================================================================================================
 -- Author:		Permitin Y.A. (ypermitin@yandex.ru)
 -- Create date: 2018-10-15
@@ -53,7 +50,6 @@ BEGIN
 
     SET @cmd =
     'USE ' + @DatabaseName + ';' + '
-
 				' + @cmd + '
 				
 				IF EXISTS(SELECT [name]
