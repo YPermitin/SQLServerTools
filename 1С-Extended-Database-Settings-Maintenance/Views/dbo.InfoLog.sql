@@ -1,6 +1,3 @@
-﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
-GO
-
 -- =============================================================================================================
 -- Author:		Permitin Y.A. (ypermitin@yandex.ru)
 -- Create date: 2018-10-15
@@ -17,6 +14,6 @@ SELECT
  ,[Severity]
  ,[Period]
  ,[IndexName]
-FROM [ExtendedSettings].[dbo].[EventLog]
+FROM [dbo].[EventLog]
 WHERE [Severity] = 'INFORMATIONAL'
 GO
