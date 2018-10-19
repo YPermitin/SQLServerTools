@@ -59,16 +59,8 @@ BEGIN
   FETCH NEXT FROM index_rules_on_index_create
   INTO @cmd, @RuleID;
 
-  EXEC xp_logevent 60000
-                  ,'OO'
-                  ,informational;
-
   WHILE @@FETCH_STATUS = 0
   BEGIN
-
-  EXEC xp_logevent 60000
-                  ,'GO'
-                  ,informational;
 
   BEGIN TRY
 
