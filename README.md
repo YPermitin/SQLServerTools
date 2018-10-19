@@ -4,7 +4,16 @@
 
 | № | Раздел | Описание |
 | - | ------ | -------- |
-| 1 | [SQL-Server-Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др. |
+| 1 | [SQL-Server-Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др |
+| 2 | [SQL-Server-Data-Model-Info](SQL-Server-Data-Model-Info) | Просмотр модели данных и других связанных объектов |
+| 3 | [SQL-Server-Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
+| 4 | [SQL-Server-Indexes-Info](SQL-Server-Indexes-Info) | Информация о индексах |
+| 5 | [SQL-Server-Indexes-Perfomance](SQL-Server-Indexes-Perfomance) | Анализ производительности и эффективности индексов |
+| 6 | [SQL-Server-Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
+| 7 | [SQL-Server-Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
+| 8 | [SQL-Server-Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
+| 9 | [SQL-Server-Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
+| 10 | [1С-Extended-Database-Settings-Maintenance](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 
 # Полезные ссылки:
 
