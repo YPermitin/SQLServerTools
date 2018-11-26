@@ -36,7 +36,7 @@ Ktaranov](https://github.com/ktaranov))
 
 # Информация о производительности:
 
-* [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настрить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
+* [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настроить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
 * [Высокая нагрузка дисковой подсистемы на сервере СУБД MS SQL Server](https://its.1c.ru/db/metod8dev#content:5813:hdoc)
 * [Высокая нагрузка на CPU MS SQL Server](https://its.1c.ru/db/metod8dev/content/5861/hdoc)
 
