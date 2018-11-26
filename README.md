@@ -30,8 +30,8 @@ Ktaranov](https://github.com/ktaranov))
 * [Стандарт оформления T-SQL](https://github.com/lestatkim/opensql/blob/master/tsql_standart.md) - Оформление кода T-SQL ([Lestat Kim](https://github.com/lestatkim))
 * [Утилиты для MS SQL Server DBA](https://github.com/jobgemws/Projects-MS-SQL-Server-DBA) - Утилиты для DBA MS SQL Server ([Evgeniy Gribkov](https://github.com/jobgemws))
 * [Данные JSON в SQL Server 2016/2017](https://docs.microsoft.com/ru-ru/sql/relational-databases/json/json-data-sql-server) - Работа с JSON в MS SQL Server
-* [Создаем свои индексы для баз 1С. Со своей структурой и настройками!](https://infostart.ru/public/936914/) - Статья об использовании собственных индексов в информационных базах 1С:Предприятие 8.x. [Permitin Yury](https://github.com/YPermitin)
-* [Файловые группы MS SQL Server и 1С:Предприятие 8.x](https://ypermitin.github.io/FileGroupsAnd1C) - Описание примера использования файловых групп в информационой базе 1С:Предприятия 8.x [Permitin Yury](https://github.com/YPermitin)
+* [Создаем свои индексы для баз 1С. Со своей структурой и настройками!](https://infostart.ru/public/936914/) - Статья об использовании собственных индексов в информационных базах 1С:Предприятие 8.x. ([Permitin Yury](https://github.com/YPermitin))
+* [Файловые группы MS SQL Server и 1С:Предприятие 8.x](https://ypermitin.github.io/FileGroupsAnd1C) - Описание примера использования файловых групп в информационой базе 1С:Предприятия 8.x ([Permitin Yury](https://github.com/YPermitin))
 
 
 # Информация о производительности:
