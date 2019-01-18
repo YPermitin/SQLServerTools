@@ -41,6 +41,13 @@ BEGIN
 
   -- В случае возникновения ошибок продолжаем работу
   SET XACT_ABORT OFF;
+  
+  -- Если курсор уже существует, значит событие сгенерировано рекурсивно
+  -- В этом случае пропускаем обработку события
+  IF CURSOR_STATUS('global','compression_settings')>=-1
+  BEGIN
+    RETURN
+  END
 
   DECLARE compression_settings CURSOR FOR SELECT
     CT.[Name] AS CompressionType
@@ -128,6 +135,13 @@ BEGIN
 
 	-- В случае возникновения ошибок продолжаем работу
 	SET XACT_ABORT OFF;
+	
+	-- Если курсор уже существует, значит событие сгенерировано рекурсивно
+	-- В этом случае пропускаем обработку события
+	IF CURSOR_STATUS('global','compression_settings')>=-1
+	BEGIN
+	  RETURN
+	END
 	
 	DECLARE compression_settings CURSOR FOR 
 	SELECT CT.[Name] AS CompressionType
@@ -227,6 +241,13 @@ BEGIN
 
   -- В случае возникновения ошибок продолжаем работу
   SET XACT_ABORT OFF;
+
+  -- Если курсор уже существует, значит событие сгенерировано рекурсивно
+  -- В этом случае пропускаем обработку события
+  IF CURSOR_STATUS('global','index_rules_on_index_create')>=-1
+  BEGIN
+    RETURN
+  END
 
   DECLARE index_rules_on_index_create CURSOR FOR SELECT
     Command
@@ -342,6 +363,13 @@ BEGIN
 
   -- В случае возникновения ошибок продолжаем работу
   SET XACT_ABORT OFF;
+
+  -- Если курсор уже существует, значит событие сгенерировано рекурсивно
+  -- В этом случае пропускаем обработку события
+  IF CURSOR_STATUS('global','index_rules_on_table_create')>=-1
+  BEGIN
+    RETURN
+  END
 
   DECLARE index_rules_on_table_create CURSOR FOR SELECT
     Command
