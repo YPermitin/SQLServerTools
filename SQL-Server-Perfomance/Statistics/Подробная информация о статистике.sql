@@ -1,15 +1,15 @@
 SET NOCOUNT ON;
 
 DECLARE 
-	@table_name nvarchar(max) = 'dbo._Acc20'
-	,@index_name nvarchar(max) = '_Acc20_ByCode_SR'
+	@table_name nvarchar(max) = '<IndexName>.<TableName>'
+	,@object_name nvarchar(max) = '<ObjectName>'
 	,@stat_header_cmd nvarchar(max)
 	,@the_histogram_cmd nvarchar(max)
 	,@the_density_vector_cmd nvarchar(max);
 
-SELECT @stat_header_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @index_name + ''') WITH  STAT_HEADER';
-SELECT @the_histogram_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @index_name + ''') WITH HISTOGRAM';
-SELECT @the_density_vector_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @index_name + ''') WITH DENSITY_VECTOR';
+SELECT @stat_header_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @object_name + ''') WITH  STAT_HEADER';
+SELECT @the_histogram_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @object_name + ''') WITH HISTOGRAM';
+SELECT @the_density_vector_cmd = 'DBCC SHOW_STATISTICS (''' + @table_name + ''', ''' + @object_name + ''') WITH DENSITY_VECTOR';
 
 IF OBJECT_ID('tempdb..#the_stat_header') IS NOT NULL
 	DROP TABLE #the_stat_header;
