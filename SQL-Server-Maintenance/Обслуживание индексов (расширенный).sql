@@ -160,7 +160,7 @@ BEGIN
 
     END  TRY    
     BEGIN CATCH
-        PRINT ERROR_MESSAGE()
+        PRINT CAST(Error_message() AS NVARCHAR(250)) + ' ' + CAST(Error_Number() AS NVARCHAR(250)) + ' ' + CAST(Error_Line() AS NVARCHAR(250));
     END CATCH
 END 
     
