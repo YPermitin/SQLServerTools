@@ -34,7 +34,9 @@ DECLARE -- Служебные переменные
 	,@Command NVARCHAR(4000)
 	,@Operation NVARCHAR(128)
 	,@RowModCtr BIGINT
-    ,@SQL nvarchar(4000);
+    ,@SQL nvarchar(4000)
+    ,@StartDate datetime
+    ,@FinishDate datetime;
 
 IF OBJECT_ID('tempdb..#MaintenanceCommands') IS NOT NULL
 	DROP TABLE #MaintenanceCommands;
@@ -142,10 +144,20 @@ BEGIN
             OR (@timeTo >= @timeNow AND '00:00:00' <= @timeNow)))		
         RETURN;
     END
-    
+
+    SET @StartDate = GetDate();
     BEGIN TRY 
         EXEC sp_executesql @SQL;
-		PRINT @SQL;
+        SET @FinishDate = GetDate()        
+		
+        -- Здесь можно сохранить информацию о проведенной операции обслуживания
+        --  @TableName - имя таблицы
+        --  @IndexName - имя индекса
+        --  @Operation - вид операции (перестроение или реорганизация)
+        --  @RunDate - дата запуска операции обслуживания (начало запуска всего скрипта)
+        --  @StartDate - начало конкретно этой операции
+        --  @FinishDate - завершение конкретно этой операции
+
     END  TRY    
     BEGIN CATCH
         PRINT ERROR_MESSAGE()
