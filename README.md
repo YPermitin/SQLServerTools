@@ -32,6 +32,7 @@ Ktaranov](https://github.com/ktaranov))
 * [Данные JSON в SQL Server 2016/2017](https://docs.microsoft.com/ru-ru/sql/relational-databases/json/json-data-sql-server) - Работа с JSON в MS SQL Server
 * [Создаем свои индексы для баз 1С. Со своей структурой и настройками!](https://infostart.ru/public/936914/) - Статья об использовании собственных индексов в информационных базах 1С:Предприятие 8.x. ([Permitin Yury](https://github.com/YPermitin))
 * [Файловые группы MS SQL Server и 1С:Предприятие 8.x](https://ypermitin.github.io/FileGroupsAnd1C) - Описание примера использования файловых групп в информационой базе 1С:Предприятия 8.x ([Permitin Yury](https://github.com/YPermitin))
+* [Секционирование таблиц и индексов в мире 1С](https://infostart.ru/public/975144/) - Использование секционирования для баз 1С, сложности и подводные камни. ([Permitin Yury](https://github.com/YPermitin))
 
 
 # Информация о производительности:
