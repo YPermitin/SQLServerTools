@@ -383,6 +383,8 @@ CREATE UNIQUE CLUSTERED INDEX [{IndexName}] ON [dbo].[{TableName}]
 	[_Fld5589] ASC,
 	[_Fld5590] ASC,
 	[_Fld5591] ASC
+	-- В параметрах пересоздания индекса обязательно нужно добавить "DROP_EXISTING = ON",
+	-- чтобы старый индекс был удален. Иначе можно получить ошибку об уже существующем индексе.
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, 
 	IGNORE_DUP_KEY = OFF, DROP_EXISTING = ON, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, 
 	ALLOW_PAGE_LOCKS = ON)
