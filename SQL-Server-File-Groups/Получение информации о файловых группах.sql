@@ -4,7 +4,7 @@
 --	Про пространства данных (https://docs.microsoft.com/ru-ru/sql/relational-databases/system-catalog-views/sys-data-spaces-transact-sql?view=sql-server-2017)
 
 SELECT
-    OBJECT_NAME(i.id) AS [Table_Name]
+    OBJECT_NAME(i.id) AS [Имя таблицы]
     ,i.indid AS [Идентификатор индекса]
     ,i.[name] AS [Имя индекса]
     ,i.groupid AS [Идентификатор файловой группы]
