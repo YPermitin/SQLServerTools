@@ -9,7 +9,7 @@
 | 3 | [SQL-Server-Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
 | 4 | [SQL-Server-Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
 | 5 | [SQL-Server-Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
-| 6 | [SQL-Server-File-Groups](SQL-Server-File-Groups) | Файловые группы |
+| 6 | [SQL-Server-File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
 | 7 | [SQL-Server-Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
 | 8 | [SQL-Server-Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
 | 9 | [SQL-Server-Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
