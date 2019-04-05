@@ -9,11 +9,12 @@
 | 3 | [SQL-Server-Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
 | 4 | [SQL-Server-Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
 | 5 | [SQL-Server-Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
-| 6 | [SQL-Server-Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
-| 7 | [SQL-Server-Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
-| 8 | [SQL-Server-Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
-| 9 | [SQL-Server-Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
-| 10 | [1С-Extended-Database-Settings-Maintenance](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
+| 6 | [SQL-Server-File-Groups](SQL-Server-File-Groups) | Файловые группы |
+| 7 | [SQL-Server-Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
+| 8 | [SQL-Server-Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
+| 9 | [SQL-Server-Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
+| 10 | [SQL-Server-Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
+| 11 | [1С-Extended-Database-Settings-Maintenance](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 
 # Полезные ссылки:
 
