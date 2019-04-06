@@ -34,6 +34,9 @@ Ktaranov](https://github.com/ktaranov))
 * [Создаем свои индексы для баз 1С. Со своей структурой и настройками!](https://infostart.ru/public/936914/) - Статья об использовании собственных индексов в информационных базах 1С:Предприятие 8.x. ([Permitin Yury](https://github.com/YPermitin))
 * [Файловые группы MS SQL Server и 1С:Предприятие 8.x](https://ypermitin.github.io/FileGroupsAnd1C) - Описание примера использования файловых групп в информационой базе 1С:Предприятия 8.x ([Permitin Yury](https://github.com/YPermitin))
 * [Секционирование таблиц и индексов в мире 1С](https://infostart.ru/public/975144/) - Использование секционирования для баз 1С, сложности и подводные камни. ([Permitin Yury](https://github.com/YPermitin))
+* [Cannot insert duplicate key. Кто виноват и что делать](https://infostart.ru/public/1010017/) - Информация по ошибке дублирования записи в уникальном индексе в контексте платформы 1С:Предприяние. ([Permitin Yury](https://github.com/YPermitin))
+* [Быстрее чем INSERT! BULK-операции и примеры использования](https://infostart.ru/public/1009357/) - Использование BULK-операций в контексте платформы 1С:Предприятие и не только. ([Permitin Yury](https://github.com/YPermitin))
+* [Как разбить базу на файлы и не сойти с ума](https://infostart.ru/public/1039011/) - Описание разбиения базы данных на отдельные файлы с помощью файловых групп и нюансы для баз 1С. ([Permitin Yury](https://github.com/YPermitin))
 
 
 # Информация о производительности:
