@@ -20,7 +20,7 @@
 
 * [MS SQL Server](https://docs.microsoft.com/ru-ru/sql/) - вся оффициальная информация о СУБД MS SQL Server
 * [Tigertoolbox](https://github.com/Microsoft/tigertoolbox) - репозиторий с полезными инструментами от Tiger Team ([MSSQL Tiger Team](https://blogs.msdn.microsoft.com/sql_server_team/))
-* [SQL-Server-First-Responder-Kit](https://github.com/BrentOzarULTD/SQL-Server-First-Responder-Kit) - полезные скрипты и другая полезная информация от великого и ужасного (в хорошем смысле!) [Brent Ozar](https://github.com/BrentOzar) и [его команды](https://github.com/BrentOzarULTD)
+* [SQL-Server-First-Responder-Kit](https://github.com/BrentOzarULTD/SQL-Server-First-Responder-Kit) - скрипты и другая полезная информация от великого и ужасного (в хорошем смысле!) [Brent Ozar](https://github.com/BrentOzar) и [его команды](https://github.com/BrentOzarULTD)
 * [Exploring Your SQL Server Databases with T-SQL](https://www.red-gate.com/simple-talk/sql/database-administration/exploring-your-sql-server-databases-with-t-sql/) - статья о исследование сервера MS SQL Server с помощью T-SQL ([Scott Swanberg](https://www.red-gate.com/simple-talk/author/scott-swanberg/))
 * [Утки, Таиланд и T-SQL… или что может подстерегать программистов при работе с SQL Server?](https://habrahabr.ru/post/315142/) 
  -- все что нужно знать о странностях MS SQL Server ([Sergey Syrovatchenko](https://habrahabr.ru/users/AlanDenton/))
