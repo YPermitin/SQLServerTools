@@ -4,17 +4,17 @@
 
 | № | Раздел | Описание |
 | - | ------ | -------- |
-| 1 | [SQL-Server-Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др |
-| 2 | [SQL-Server-Data-Model-Info](SQL-Server-Data-Model-Info) | Просмотр модели данных и других связанных объектов |
-| 3 | [SQL-Server-Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
-| 4 | [SQL-Server-Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
-| 5 | [SQL-Server-Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
-| 6 | [SQL-Server-File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
-| 7 | [SQL-Server-Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
-| 8 | [SQL-Server-Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
-| 9 | [SQL-Server-Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
-| 10 | [SQL-Server-Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
-| 11 | [1С-Extended-Database-Settings-Maintenance](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
+| 1 | [Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др |
+| 2 | [Data-Model-Info](SQL-Server-Data-Model-Info) | Просмотр модели данных и других связанных объектов |
+| 3 | [Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
+| 4 | [Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
+| 5 | [Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
+| 6 | [File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
+| 7 | [Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
+| 8 | [Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
+| 9 | [Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
+| 10 | [Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
+| 11 | [1С-Extended-Settings](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 
 # Полезные ссылки:
 
