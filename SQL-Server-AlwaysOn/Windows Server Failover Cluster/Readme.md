@@ -23,9 +23,9 @@
 
 Далее проходим каждый шаг и получаем работающий отказоустойчивый кластер:
 
-1. [Установка WSFC](Установка WSFC.md)
-2. [Тестирование WSFC](Тестирование WSFC.md)
-3. [Создание и настройка WSFC](Создание и настройка WSFC.md)
+1. [Установка WSFC](Установка%20WSFC.md)
+2. [Тестирование WSFC](Тестирование%20WSFC.md)
+3. [Создание и настройка WSFC](Создание%20и%20настройка%20WSFC.md)
 
 Все готово!
 
@@ -37,4 +37,6 @@
 
 ## Полезные материалы
 
-В разработке...
+- [Отказоустойчивая кластеризация в Windows Server](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview)
+- [Что нового в Windows Server 2016 Failover Clustering](https://habr.com/ru/company/microsoft/blog/316928/)
+- [Отказоустойчивый кластер Windows Server в Microsoft Azure. Хранилище данных](https://habr.com/ru/company/icl_services/blog/282822/)
