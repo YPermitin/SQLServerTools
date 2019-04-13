@@ -2,9 +2,9 @@
 
 ## Общие сведения
 
-[Отказоустойчивый кластер на базе Windows Server](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview) (Windows Server Failover Cluster - WSFC) - это решение кластеризации на платформе Microsoft Windows Server, основанное на совместной работе независимых компьютеров с целью повышения маштабируемости и доступности кластерных ролей.
+[Отказоустойчивый кластер на базе Windows Server](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview) (Windows Server Failover Cluster - WSFC) - это решение кластеризации на платформе Microsoft Windows Server, основанное на совместной работе независимых компьютеров с целью повышения масштабируемости и доступности кластерных ролей.
 
-На базе WSFC построены другие продукты и решения Microsoft, а также других вендоров. В том числе и технология [групп высокой доступности AlwaysOn](https://docs.microsoft.com/ru-ru/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server?view=sql-server-2017) для СУБД [SQL Server](https://www.microsoft.com/ru-ru/sql-server/sql-server-2017-editions), которая позволяет значительно повсыить доступность баз данных и их масштабируемость за счет реплицирования базы на несколько инстансов.
+На базе WSFC построены другие продукты и решения Microsoft, а также других вендоров. В том числе и технология [групп высокой доступности AlwaysOn](https://docs.microsoft.com/ru-ru/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server?view=sql-server-2017) для СУБД [SQL Server](https://www.microsoft.com/ru-ru/sql-server/sql-server-2017-editions), которая позволяет значительно повысить доступность баз данных и их масштабируемость за счет репликации базы на несколько инстансов.
 
 Здесь будет информация об очень простой конфигурации WSFC, которая предназначена лишь для общего понимания последовательности действия при настройках. Более подробная информация по [плану развертывания](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/clustering-requirements) и других нюансах доступна в [официальной документации](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview).
 
@@ -33,7 +33,7 @@
 
 Эта инструкция не является всеобъемлющей документацией. С большой долей вероятности, в Вашем случае настройка будет выглядеть иначе и сложнее.
 
-Информация из этой инструкции дается лишь в демонстрационных целях. Более подробные и достоверные данные слудет брать [на сайте Microsoft](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview).
+Информация из этой инструкции дается лишь в демонстрационных целях. Более подробные и достоверные данные следует брать [на сайте Microsoft](https://docs.microsoft.com/ru-ru/windows-server/failover-clustering/failover-clustering-overview).
 
 ## Полезные материалы
 
