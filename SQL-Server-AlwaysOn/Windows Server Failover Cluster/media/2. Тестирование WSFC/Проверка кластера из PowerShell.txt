@@ -1,1 +1,0 @@
-Test-Cluster -Node "SQL-AG-1", "SQL-AG-2"
