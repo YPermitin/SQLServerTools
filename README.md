@@ -16,7 +16,7 @@
 | 10 | [Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
 | 11 | [1С-Extended-Settings](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 | 12 | [BCP](SQL-Server-BCP) | Работа с утилитой Bulk Insert Programm (BCP) |
-| 13 | [AlwaysOn](SQL-Server-AlwaysOnP) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
+| 13 | [AlwaysOn](SQL-Server-AlwaysOn) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
 
 # Полезные ссылки:
 
