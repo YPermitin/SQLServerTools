@@ -40,6 +40,7 @@ Ktaranov](https://github.com/ktaranov))
 * [Cannot insert duplicate key. Кто виноват и что делать](https://infostart.ru/public/1010017/) - Информация по ошибке дублирования записи в уникальном индексе в контексте платформы 1С:Предприяние. ([Permitin Yury](https://github.com/YPermitin))
 * [Быстрее чем INSERT! BULK-операции и примеры использования](https://infostart.ru/public/1009357/) - Использование BULK-операций в контексте платформы 1С:Предприятие и не только. ([Permitin Yury](https://github.com/YPermitin))
 * [Как разбить базу на файлы и не сойти с ума](https://infostart.ru/public/1039011/) - Описание разбиения базы данных на отдельные файлы с помощью файловых групп и нюансы для баз 1С. ([Permitin Yury](https://github.com/YPermitin))
+* [Самый быстрый шринк на Диком Западе](https://infostart.ru/public/1031815/) - о шринке баз данных и связанная полезная информация.
 
 
 # Информация о производительности:
