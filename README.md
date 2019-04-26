@@ -18,6 +18,7 @@
 | 12 | [BCP](SQL-Server-BCP) | Работа с утилитой Bulk Insert Programm (BCP) |
 | 13 | [AlwaysOn](SQL-Server-AlwaysOn) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
 | 14 | [Diagnostics](SQL-Server-Diagnostics) | Диагностика работы SQL Server |
+| 15 | [FullText-Search](SQL-Server-FullText-Search) | Полнотекстовый поиск и все что с ним связано |
 
 # Полезные ссылки:
 
