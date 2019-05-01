@@ -48,11 +48,13 @@ ADD EVENT sqlserver.xml_deadlock_report(
         )
     )
 ADD TARGET package0.event_file(SET
-        -- Путь к файлу с собранными данными
-        filename=N'D\Log\DeadlockAnalyze.xel',
+        -- Путь к файлу хранения логов. Если не указан, то используется путь к каталогу логов SQL Server
+        filename=N'DeadlockAnalyze.xel',
+        -- Максимальный размер файла в мегабайтах
         max_file_size=(10),
+        -- Максимальное количество файлов, после чего начнется перезапись логов в более старых файлах.
         max_rollover_files=(5),
-        metadatafile=N'D\Log\DeadlockAnalyze.xem'
+        metadatafile=N'DeadlockAnalyze.xem'
     )
 WITH (
         MAX_MEMORY=4096 KB,
