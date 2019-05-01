@@ -34,29 +34,15 @@ ADD EVENT sqlserver.sql_batch_completed(
         sqlserver.sql_text,
         sqlserver.transaction_id,
         sqlserver.username)
-    WHERE ([logical_reads]>(50000))),
--- Событие класса событий SQL:StmtCompleted указывает на то, что инструкция языка Transact-SQL завершена.
--- https://docs.microsoft.com/ru-ru/sql/relational-databases/event-classes/sql-stmtcompleted-event-class?view=sql-server-2017
-ADD EVENT sqlserver.sql_statement_completed(
-    ACTION (
-        sqlserver.client_app_name,
-        sqlserver.client_hostname,
-        sqlserver.client_pid,
-        sqlserver.database_id,
-        sqlserver.nt_username,
-        sqlserver.query_hash,
-        sqlserver.query_plan_hash,
-        sqlserver.server_principal_name,
-        sqlserver.session_id,
-        sqlserver.sql_text,
-        sqlserver.transaction_id,
-        sqlserver.username)
     WHERE ([logical_reads]>(50000)))
 ADD TARGET package0.event_file(SET 
-    filename=N'D\Log\HeavyQueryByReads.xel',
-    max_file_size=(10),
+    -- Путь к файлу хранения логов. Если не указан, то используется путь к каталогу логов SQL Server
+    filename=N'HeavyQueryByReads.xel',
+    -- Максимальный размер файла в мегабайтах
+    max_file_size=(1024),
+    -- Максимальное количество файлов, после чего начнется перезапись логов в более старых файлах.
     max_rollover_files=(5),
-    metadatafile=N'D\Log\HeavyQueryByReads.xem')
+    metadatafile=N'HeavyQueryByReads.xem')
 WITH (
     MAX_MEMORY=4096 KB,
     EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,
@@ -65,5 +51,3 @@ WITH (
     MEMORY_PARTITION_MODE=NONE,
     TRACK_CAUSALITY=OFF,
     STARTUP_STATE=OFF)
-
-
