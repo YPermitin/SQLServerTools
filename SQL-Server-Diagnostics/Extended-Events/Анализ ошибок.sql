@@ -1,3 +1,5 @@
+-- Анализ ошибок
+
 CREATE EVENT SESSION [Errors] ON SERVER 
 ADD EVENT sqlserver.error_reported(
     ACTION (
@@ -15,10 +17,13 @@ ADD EVENT sqlserver.error_reported(
         sqlserver.username)
     WHERE ([severity]>(10)))
 ADD TARGET package0.event_file(SET 
-    filename=N'D\Log\Errors.xel',
+    -- Путь к файлу хранения логов. Если не указан, то используется путь к каталогу логов SQL Server
+    filename=N'Errors.xel',
+    -- Максимальный размер файла в мегабайтах
     max_file_size=(10),
+    -- Максимальное количество файлов, после чего начнется перезапись логов в более старых файлах.
     max_rollover_files=(5),
-    metadatafile=N'D\Log\Errors.xem')
+    metadatafile=N'Errors.xem')
 WITH (
     MAX_MEMORY=4096 KB,
     EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,
