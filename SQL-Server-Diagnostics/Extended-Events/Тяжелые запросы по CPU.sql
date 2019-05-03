@@ -37,7 +37,7 @@ ADD TARGET package0.event_file(SET
     -- Максимальный размер файла в мегабайтах
     max_file_size=(1024),
     -- Максимальное количество файлов, после чего начнется перезапись логов в более старых файлах.
-    max_rollover_files=(5)                                                        
+    max_rollover_files=(5),                                                        
     metadatafile=N'HeavyQueryByCPU.xem')
 WITH (
     MAX_MEMORY=4096 KB,
