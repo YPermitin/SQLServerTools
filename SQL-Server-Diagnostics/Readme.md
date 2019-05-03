@@ -2,4 +2,5 @@
 
 Средства диагностики SQL Server для решения проблем производительности, стабильности, мониторинга, аудита и много другого.
 
-* [ExtendedEvents](Extended-Events)
+* [Счетчики производительности (Performance counters)](Performance-Counters)
+* [Расширенные события (Extended Events)](Extended-Events)
