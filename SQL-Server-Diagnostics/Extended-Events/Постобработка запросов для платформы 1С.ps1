@@ -1,3 +1,40 @@
+<#
+
+Для корректной работы скрипта в таблицу с логами Extended Events как минимум нужно добавить поле ID.
+Индексы необходимо добавлять по необходимости, в основном для очень больших файлов логов.
+
+-- Добавляем уникальное поле ID для каждой записи
+ALTER TABLE [dbo].[QueryAnalysis] ADD ID INT IDENTITY(1,1);
+
+-- Изменяем тип колонки "database_name" с "nvarchar(max)" на "nvarchar(150)",
+-- чтобы его можно было использовать в индексах
+ALTER TABLE [dbo].[QueryAnalysis] ALTER COLUMN [database_name] nvarchar(150) NOT NULL;
+
+-- Добавляем кластерный индекс по периоду, имени базы и ключу записи
+CREATE UNIQUE CLUSTERED INDEX CIX_Timestamp_DatabaseName_ID ON [dbo].[QueryAnalysis] 
+(
+	[timestamp (UTC)], 
+	[database_name], 
+	[ID]
+);
+
+-- Добавляем индекс для быстрого поиска по "ID" + "timestamp (UTC)".
+-- Для оптимизации включены покрывающие поля, которые содержат тексты запросов, 
+-- но это приводит к увеличению размера базы с логами.
+CREATE UNIQUE NONCLUSTERED INDEX [UI_ID_Timestamp] ON [dbo].[QueryAnalysis]
+(
+	[ID] ASC,
+	[timestamp (UTC)] ASC
+)
+INCLUDE ( 	
+	[batch_text],
+	[sql_text],
+	[database_name],
+	[statement]
+);
+
+#>
+
 # Строка подключения к базе
 # Примеры:
 #   - аутентификация средствами NTLM: "Server=<Имя сервера>;Database=<Имя базы>;Integrated Security=TRUE;"
