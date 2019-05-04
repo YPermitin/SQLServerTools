@@ -156,7 +156,7 @@ try
                 $sqlCmd_updateLogRecord.Connection = $sqlConnectionForUpdate
                 $sqlCmd_updateLogRecord.CommandTimeout = $sqlCmdTimeoutSeconds;
                 $sqlCmd_updateLogRecord.CommandText = "
-                    UPDATE [dbo].[QueryAnalysis] SET
+                    UPDATE [dbo].[" + $tableWithLogName + "] SET
                     " + $fieldsForUpdateLogRecord +  "       
                     WHERE [timestamp (UTC)] = @timestamp
                     " + $(if ($database_name_exist) {"AND [database_name] = @databaseName"} Else {""}) +  "	                
