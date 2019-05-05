@@ -44,12 +44,18 @@ Ktaranov](https://github.com/ktaranov))
 * [Как разбить базу на файлы и не сойти с ума](https://infostart.ru/public/1039011/) - Описание разбиения базы данных на отдельные файлы с помощью файловых групп и нюансы для баз 1С. ([Permitin Yury](https://github.com/YPermitin))
 * [Самый быстрый шринк на Диком Западе](https://infostart.ru/public/1031815/) - о шринке баз данных и связанная полезная информация.
 
-
 # Информация о производительности:
 
 * [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настроить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
 * [Высокая нагрузка дисковой подсистемы на сервере СУБД MS SQL Server](https://its.1c.ru/db/metod8dev#content:5813:hdoc)
 * [Высокая нагрузка на CPU MS SQL Server](https://its.1c.ru/db/metod8dev/content/5861/hdoc)
+
+## Блог [Paul S. Randal](https://www.sqlskills.com/blogs/paul/)
+
+* [Advanced SQL Server performance tuning](https://www.sqlskills.com/blogs/paul/advanced-performance-troubleshooting-waits-latches-spinlocks/)
+* [A SQL Server DBA myth a day: (12/30) tempdb should always have one data file per processor core](https://www.sqlskills.com/blogs/paul/a-sql-server-dba-myth-a-day-1230-tempdb-should-always-have-one-data-file-per-processor-core/)
+* [Inside The Storage Engine: GAM, SGAM, PFS and other allocation maps](https://www.sqlskills.com/blogs/paul/inside-the-storage-engine-gam-sgam-pfs-and-other-allocation-maps/)
+* [Inside the Storage Engine: Using DBCC PAGE and DBCC IND to find out if page splits ever roll back](https://www.sqlskills.com/blogs/paul/inside-the-storage-engine-using-dbcc-page-and-dbcc-ind-to-find-out-if-page-splits-ever-roll-back/)
 
 # Отказ от ответственности
 
