@@ -49,6 +49,7 @@ Ktaranov](https://github.com/ktaranov))
 * [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настроить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
 * [Высокая нагрузка дисковой подсистемы на сервере СУБД MS SQL Server](https://its.1c.ru/db/metod8dev#content:5813:hdoc)
 * [Высокая нагрузка на CPU MS SQL Server](https://its.1c.ru/db/metod8dev/content/5861/hdoc)
+* [Running SQL Server on Machines with More Than 8 CPUs per NUMA Node May Need Trace Flag 8048](https://blogs.msdn.microsoft.com/psssql/2015/03/02/running-sql-server-on-machines-with-more-than-8-cpus-per-numa-node-may-need-trace-flag-8048/) - оптимизация SQL Server при наличии более 8 логических процессоров.
 
 ## Блог [Paul S. Randal](https://www.sqlskills.com/blogs/paul/)
 
