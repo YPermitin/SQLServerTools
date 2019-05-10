@@ -170,7 +170,7 @@ try
                 if($batch_text_exist -eq $true)
                 {
                     $batch_text = $reader["batch_text"];
-                    $batch_text = $batch_text -replace "#tt[\d]+", "ttN";
+                    $batch_text = $batch_text -replace "#tt[\d]+", "#ttN";
                     $batch_text = $batch_text -replace "@P[\d]+", "@PN";
                 }
 
