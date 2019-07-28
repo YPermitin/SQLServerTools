@@ -24,7 +24,6 @@ FROM
 			) AS data,
 		SUM (ps.used_page_count) AS used
 	FROM sys.dm_db_partition_stats ps
-        WHERE ps.object_id NOT IN (SELECT object_id FROM sys.tables WHERE is_memory_optimized = 1)
 	GROUP BY ps.object_id) AS a1
 LEFT OUTER JOIN 
 	(SELECT 
