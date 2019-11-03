@@ -7,7 +7,7 @@
 | 1 | [Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др |
 | 2 | [Data-Model-Info](SQL-Server-Data-Model-Info) | Просмотр модели данных и других связанных объектов |
 | 3 | [Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
-| 4 | [Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
+| 4 | [Statistics](SQL-Server-Statistics) | Информация о статистиках, вопросах производительности и их анализе |
 | 5 | [Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
 | 6 | [File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
 | 7 | [Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
