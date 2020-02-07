@@ -7,7 +7,7 @@
 | 1 | [Common-Info](SQL-Server-Common-Info) | Cкрипты общего назначения для просмотра состояния и настроек инстанса и др |
 | 2 | [Data-Model-Info](SQL-Server-Data-Model-Info) | Просмотр модели данных и других связанных объектов |
 | 3 | [Databases-Info](SQL-Server-Databases-Info) | Информация о базах данных |
-| 4 | [Statistics](SQL-Server-Statistics) | Информация об статистиках, вопросах производительности и их анализе |
+| 4 | [Statistics](SQL-Server-Statistics) | Информация о статистиках, вопросах производительности и их анализе |
 | 5 | [Indexes](SQL-Server-Indexes) | Информация об индексах, вопросах производительности и их анализе |
 | 6 | [File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
 | 7 | [Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
@@ -43,6 +43,7 @@ Ktaranov](https://github.com/ktaranov))
 * [Быстрее чем INSERT! BULK-операции и примеры использования](https://infostart.ru/public/1009357/) - Использование BULK-операций в контексте платформы 1С:Предприятие и не только. ([Permitin Yury](https://github.com/YPermitin))
 * [Как разбить базу на файлы и не сойти с ума](https://infostart.ru/public/1039011/) - Описание разбиения базы данных на отдельные файлы с помощью файловых групп и нюансы для баз 1С. ([Permitin Yury](https://github.com/YPermitin))
 * [Самый быстрый шринк на Диком Западе](https://infostart.ru/public/1031815/) - о шринке баз данных и связанная полезная информация.
+* [Самые распространенные заблуждения об индексах в мире 1С](https://infostart.ru/public/1158005/) - о самых распространенных ошибках при работе с индексами в контексте платформы 1С.
 
 # Информация о производительности:
 
@@ -61,3 +62,7 @@ Ktaranov](https://github.com/ktaranov))
 # Отказ от ответственности
 
 Все содержимое репозитория предоставляется "AS-IS". Автор не несет ответственности за использование предоставленного материала.
+
+# Другое
+
+SQL Server хорошо, но также интересны и другие СУБД. Вот, например, [информация о PostgreSQL](https://github.com/YPermitin/PGTools).
