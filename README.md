@@ -19,6 +19,7 @@
 | 13 | [AlwaysOn](SQL-Server-AlwaysOn) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
 | 14 | [Diagnostics](SQL-Server-Diagnostics) | Диагностика работы SQL Server |
 | 15 | [FullText-Search](SQL-Server-FullText-Search) | Полнотекстовый поиск и все что с ним связано |
+| 16 | [TempDB](SQL-Server-TempDB) | Все что связано с TempDB и временными таблицами |
 
 # Полезные ссылки:
 
