@@ -23,3 +23,4 @@ ON  (
         AU.type_desc = N'LOB_DATA' 
         AND AU.container_id = P.hobt_id
     )
+--WHERE T.name LIKE N'#tempTablename%';
