@@ -68,4 +68,4 @@ Ktaranov](https://github.com/ktaranov))
 
 # Другое
 
-SQL Server хорошо, но также интересны и другие СУБД. Вот, например, [информация о PostgreSQL](https://github.com/YPermitin/PGTools).
+SQL Server хорошо, но также интересны и другие СУБД. Вот, например, [информация о PostgreSQL](https://github.com/YPermitin/PGTools). Everything Regarding the Sql Server.
