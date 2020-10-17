@@ -21,6 +21,7 @@
 | 14 | [Diagnostics](SQL-Server-Diagnostics) | Диагностика работы SQL Server |
 | 15 | [FullText-Search](SQL-Server-FullText-Search) | Полнотекстовый поиск и все что с ним связано |
 | 16 | [TempDB](SQL-Server-TempDB) | Все что связано с TempDB и временными таблицами |
+| 17 | [Monitoring](SQL-Server-Monitoring) | Мониторинг стабильности и производительности |
 
 # Полезные ссылки:
 
