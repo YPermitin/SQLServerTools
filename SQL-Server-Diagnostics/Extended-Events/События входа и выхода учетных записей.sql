@@ -32,10 +32,9 @@ ADD EVENT sqlserver.logout(
         sqlserver.username)
 )
 ADD TARGET package0.event_file(SET 
-    filename=N'D\Log\LoginAndLogoff.xel',
+    filename=N'LoginAndLogoff.xel',
     max_file_size=(10),
-    max_rollover_files=(5),
-    metadatafile=N'D\Log\LoginAndLogoff.xem')
+    max_rollover_files=(5))
 WITH (
     MAX_MEMORY=4096 KB,
     EVENT_RETENTION_MODE=ALLOW_SINGLE_EVENT_LOSS,

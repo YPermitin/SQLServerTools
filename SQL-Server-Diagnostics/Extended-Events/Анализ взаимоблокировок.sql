@@ -53,8 +53,7 @@ ADD TARGET package0.event_file(SET
         -- Максимальный размер файла в мегабайтах
         max_file_size=(10),
         -- Максимальное количество файлов, после чего начнется перезапись логов в более старых файлах.
-        max_rollover_files=(5),
-        metadatafile=N'DeadlockAnalyze.xem'
+        max_rollover_files=(5)
     )
 WITH (
         MAX_MEMORY=4096 KB,
