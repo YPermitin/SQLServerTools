@@ -37,11 +37,23 @@ DECLARE -- Служебные переменные
     ,@SQL nvarchar(4000)
     ,@StartDate datetime
     ,@FinishDate datetime
-    ,@MaxDop int;
+    ,@MaxDop int
+    ,@RebuildMaxWaitDurationMinutes int
+    ,@RebuildAbortAfterWaitType nvarchar(50);
 
 -- Степень параллелизма при перестроении индексов.
 -- 0 - макс. степень, будут задействованы все доступные ядра CPU.
 SET @MaxDop = 0;
+
+-- Настройки online-перестроения индексов.
+-- Подробнее: https://www.sqlshack.com/control-online-index-rebuild-locking-using-sql-server-2014-managed-lock-priority/
+-- Максимальное время ожидания переключения индекса (удаление старого индекса и включение нового) в минутах.
+SET @RebuildMaxWaitDurationMinutes = 5;
+-- Действие при истечении таймаута ожидания переключения индекса
+-- BLOCKERS - завершить сессии, мешающие перестроению индекса
+-- SELF - завершить сессию перестроения индекса
+-- NONE - ожидать завершения блокирующей транзакции. Значение по умолчанию.
+SET @RebuildAbortAfterWaitType = 'BLOCKERS';
 
 IF OBJECT_ID('tempdb..#MaintenanceCommands') IS NOT NULL
 	DROP TABLE #MaintenanceCommands;
@@ -105,7 +117,9 @@ BEGIN
     END
     IF @frag >= @fragPercentForRebuild BEGIN
         SET @Command = N'ALTER INDEX ' + @IndexName + N' ON ' + @SchemaName + N'.' + @ObjectName 
-            + N' REBUILD WITH (MAXDOP=' + CAST(@MaxDop AS nvarchar(10)) + ')';
+            + N' REBUILD WITH (MAXDOP=' + CAST(@MaxDop AS nvarchar(10)) 
+            + ', ONLINE = ON (WAIT_AT_LOW_PRIORITY (MAX_DURATION = ' + CAST(@RebuildMaxWaitDurationMinutes AS nvarchar(10)) 
+            + ' MINUTES, ABORT_AFTER_WAIT = ' + @RebuildAbortAfterWaitType + ')))';
         SET @Operation = 'REBUILD INDEX'
     END
 
