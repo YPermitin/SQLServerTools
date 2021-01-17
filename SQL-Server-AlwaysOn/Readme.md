@@ -18,3 +18,6 @@
 * [Step-By-Step: Creating a SQL Server Always On Availability Group](https://techcommunity.microsoft.com/t5/itops-talk-blog/step-by-step-creating-a-sql-server-always-on-availability-group/ba-p/648772)
 * [Configuring a SQL Server AlwaysOn High Availability Group](https://www.sqlshack.com/configuring-a-sql-server-alwayson-high-availability-group/)
 * [SQL Server AlwaysOn Availability Groups](https://www.brentozar.com/sql/sql-server-alwayson-availability-groups/) by [BrentOzar](https://github.com/BrentOzar).
+* [[SQL Server] Using trace flag 9592 to compress traffic between synchronous AlwaysOn replicas](https://github.com/alekseybochkov/publications/tree/master/trace-flag-9592). [[rus]](https://infostart.ru/1c/articles/1237484/)
+* [Data synchronization in SQL Server Always On Availability Groups](https://www.sqlshack.com/data-synchronization-in-sql-server-always-on-availability-groups/)
+* [SQL Server AlwaysOn Availability Group Performance Internals](https://fard-solutions.com/2018/01/03/sql-server-alwayson-availability-group-performance-internals/)
