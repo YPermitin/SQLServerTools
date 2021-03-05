@@ -1,0 +1,9 @@
+-- Расчетные меры и элементы
+
+SELECT 
+    [MEMBER_UNIQUE_NAME] AS [CALCULATED_MEASURE],
+    [MEMBER_CAPTION] AS [CAPTION],
+    [EXPRESSION]
+FROM $system.MDSCHEMA_MEMBERS
+WHERE CUBE_NAME = '<Имя куба>' -- Измените отбор здесь
+AND [MEMBER_TYPE] = 4 -- MDMEMBER_TYPE_FORMULA

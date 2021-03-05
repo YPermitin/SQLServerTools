@@ -1,0 +1,8 @@
+-- Все кубы в базе данных
+
+SELECT 
+    [CATALOG_NAME] AS [DATABASE],
+    CUBE_CAPTION AS [CUBE/PERSPECTIVE],
+    BASE_CUBE_NAME
+FROM $system.MDSchema_Cubes
+WHERE CUBE_SOURCE=1

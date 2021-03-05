@@ -25,6 +25,7 @@
 | 16 | [TempDB](SQL-Server-TempDB) | Все что связано с TempDB и временными таблицами |
 | 17 | [Monitoring](SQL-Server-Monitoring) | Мониторинг стабильности и производительности |
 | 18 | [Internals](SQL-Server-Internals) | Информация о внутренностях работы СУБД |
+| 19 | [SSAS](SQL-Server-Analysis-Services) | Подраздел об [SQL Server Analysis Services](https://docs.microsoft.com/ru-ru/analysis-services/analysis-services-overview?view=asallproducts-allversions) |
 
 # Полезные ссылки:
 

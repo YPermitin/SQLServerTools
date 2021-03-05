@@ -1,0 +1,12 @@
+-- Все атрибуты с именем и ключом
+
+SELECT [CATALOG_NAME] as [DATABASE],
+      CUBE_NAME AS [CUBE],[DIMENSION_UNIQUE_NAME] AS [DIMENSION],
+      LEVEL_CAPTION AS [ATTRIBUTE],
+      [LEVEL_NAME_SQL_COLUMN_NAME] AS [ATTRIBUTE_NAME_SQL_COLUMN_NAME],
+      [LEVEL_KEY_SQL_COLUMN_NAME] AS [ATTRIBUTE_KEY_SQL_COLUMN_NAME]
+FROM $system.MDSchema_levels
+WHERE CUBE_NAME  = '<Имя куба>' -- Измените отбор здесь
+AND level_origin=2
+AND LEVEL_NAME <> '(All)'
+order by [DIMENSION_UNIQUE_NAME]
