@@ -79,6 +79,7 @@ foreach($rowData in $sessionsData.return.root.ChildNodes)
 
     $sqlCommand = New-Object System.Data.SqlClient.SqlCommand
     $sqlCommand.Connection = $sqlConnection
+    $sqlCommand.CommandTimeout = $sqlCmdTimeoutSeconds
     $sqlCommand.CommandText = 
         "INSERT INTO [dbo].[SSAS_DISCOVER_SESSIONS] " + 
         "(" +
