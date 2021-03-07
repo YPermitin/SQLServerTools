@@ -48,7 +48,7 @@ $errorActionPreference = 'Stop'
 # Примеры:
 #   - аутентификация средствами NTLM: "Server=<Имя сервера>;Database=<Имя базы>;Integrated Security=TRUE;"
 #   - аутентификация средствами SQL Server: "Data Source=<Имя сервера>;user=<Имя пользователя>;password=<Пароль>;Initial Catalog=<Имя базы>"
-$connectionString = "Server=localhost;Database=SQLServerMonitoring;Integrated Security=TRUE;";
+$connectionString = "<Строка подключения>";
 # Таймаут подключения для команд
 $sqlCmdTimeoutSeconds = 180;
 
