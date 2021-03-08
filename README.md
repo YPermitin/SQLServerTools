@@ -27,6 +27,7 @@
 | 18 | [Internals](SQL-Server-Internals) | Информация о внутренностях работы СУБД |
 | 19 | [SSAS](SQL-Server-Analysis-Services) | Подраздел об [SQL Server Analysis Services](https://docs.microsoft.com/ru-ru/analysis-services/analysis-services-overview?view=asallproducts-allversions) |
 | 20 | [PowerShell](SQL-Server-And-PowerShell) | Работа со SQL Server из PowerShell |
+| 21 | [Linux](SQL-Server-On-Linux) | Работа со SQL Server под Linux |
 
 # Полезные ссылки:
 
