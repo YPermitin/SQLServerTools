@@ -1,3 +1,6 @@
+-- Дополнительная информация
+-- https://docs.microsoft.com/en-us/sql/relational-databases/system-tables/backupset-transact-sql?view=sql-server-ver15
+
 SELECT  @@Servername AS ServerName ,
         d.Name AS DBName ,
         MAX(b.backup_finish_date) AS LastBackupCompleted

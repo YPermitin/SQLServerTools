@@ -1,4 +1,8 @@
-# Инфо о репозитории
+# SQL Server Tools
+
+Инструменты обслуживания и разработки для Microsoft SQL Server, а также другие интересности.
+
+## Инфо о репозитории
 
 Репозиторий содержит полезные скрипты для анализа, разработки и обслуживания информационных систем на Microsoft SQL Server.
 
@@ -15,7 +19,7 @@
 | 6 | [File-Groups](SQL-Server-File-Groups) | Информация о файловых группах |
 | 7 | [Partitioned-Tables-and-Indexes](SQL-Server-Partitioned-Tables-and-Indexes) | Секционирование таблиц и индексов |
 | 8 | [Perfomance](SQL-Server-Perfomance) | Производительность и оптимизация запросов, настроек сервера и поиск узких мест  |
-| 9 | [Backup-Info](SQL-Server-Backup-Info) | Резервное копирование и восстановление данных |
+| 9 | [Backup](SQL-Server-Backup) | Резервное копирование и восстановление данных |
 | 10 | [Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
 | 11 | [1С-Extended-Settings](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 | 12 | [BCP](SQL-Server-BCP) | Работа с утилитой Bulk Insert Programm (BCP) |
@@ -30,7 +34,7 @@
 | 21 | [Linux](SQL-Server-On-Linux) | Работа со SQL Server под Linux |
 | 22 | [Integration](SQL-Server-Integration) | Информация о средствах интеграции SQL Server с другими системами и наоборот. |
 
-# Полезные ссылки:
+## Полезные ссылки
 
 * [MS SQL Server](https://docs.microsoft.com/ru-ru/sql/) - вся оффициальная информация о СУБД MS SQL Server
 * [Tigertoolbox](https://github.com/Microsoft/tigertoolbox) - репозиторий с полезными инструментами от Tiger Team ([MSSQL Tiger Team](https://blogs.msdn.microsoft.com/sql_server_team/))
@@ -56,7 +60,7 @@ Ktaranov](https://github.com/ktaranov))
 * [Самые распространенные заблуждения об индексах в мире 1С](https://infostart.ru/public/1158005/) - о самых распространенных ошибках при работе с индексами в контексте платформы 1С.
 * [MS SQL Server+1C Tellegram Channel](https://t.me/mssqlplus1c) - Телеграмм канал по использованию Microsoft SQL Server и 1С. 
 
-# Информация о производительности:
+## Информация о производительности:
 
 * [Мониторинг Microsoft SQL Server «на коленке»](https://habrahabr.ru/post/317426/) - пример решения, когда мониторинг SQL Server'а нужно настроить еще вчера. ([IndiraGandhi](https://habrahabr.ru/users/IndiraGandhi/))
 * [Высокая нагрузка дисковой подсистемы на сервере СУБД MS SQL Server](https://its.1c.ru/db/metod8dev#content:5813:hdoc)
@@ -70,10 +74,10 @@ Ktaranov](https://github.com/ktaranov))
 * [Inside The Storage Engine: GAM, SGAM, PFS and other allocation maps](https://www.sqlskills.com/blogs/paul/inside-the-storage-engine-gam-sgam-pfs-and-other-allocation-maps/)
 * [Inside the Storage Engine: Using DBCC PAGE and DBCC IND to find out if page splits ever roll back](https://www.sqlskills.com/blogs/paul/inside-the-storage-engine-using-dbcc-page-and-dbcc-ind-to-find-out-if-page-splits-ever-roll-back/)
 
-# Отказ от ответственности
+## Отказ от ответственности
 
 Все содержимое репозитория предоставляется "AS-IS". Автор не несет ответственности за использование предоставленного материала.
 
-# Другое
+## Другое
 
 SQL Server хорошо, но также интересны и другие СУБД. Вот, например, [информация о PostgreSQL](https://github.com/YPermitin/PGTools).
