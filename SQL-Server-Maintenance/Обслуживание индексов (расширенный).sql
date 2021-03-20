@@ -34,6 +34,7 @@ DECLARE -- Служебные переменные
 	,@Command NVARCHAR(4000)
 	,@Operation NVARCHAR(128)
 	,@RowModCtr BIGINT
+    ,@RunDate DATETIME = GetDate()
     ,@SQL nvarchar(4000)
     ,@StartDate datetime
     ,@FinishDate datetime

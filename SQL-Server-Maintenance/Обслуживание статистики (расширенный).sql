@@ -22,7 +22,7 @@ DECLARE -- Служебные переменные
     @TableName SYSNAME
     ,@IndexName SYSNAME
     ,@Operation NVARCHAR(128) = 'UPDATE STATISTICS'
-    ,@RunDate DATETIME
+    ,@RunDate DATETIME = GetDate()
     ,@StartDate DATETIME
     ,@FinishDate DATETIME
     ,@SQL NVARCHAR(500);
