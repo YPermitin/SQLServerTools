@@ -70,11 +70,41 @@ SELECT
     SUM([si].[rowmodctr]) AS [rowmodctr]
 INTO #MaintenanceCommandsTemp
 FROM sys.dm_db_index_physical_stats (@DBID, NULL, NULL , NULL, N'LIMITED') dt
-    LEFT JOIN sys.sysindexes si
-    ON dt.object_id = si.id
+    LEFT JOIN sys.sysindexes si ON dt.object_id = si.id
+	LEFT JOIN (
+		SELECT 
+			 t.object_id AS [TableObjectId],
+			 ind.index_id AS [IndexObjectId]
+		FROM 
+			 sys.indexes ind 
+		INNER JOIN 
+			 sys.index_columns ic ON  ind.object_id = ic.object_id and ind.index_id = ic.index_id 
+		INNER JOIN 
+			 sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id 
+		INNER JOIN 
+			 sys.tables t ON ind.object_id = t.object_id 
+		LEFT JOIN
+			INFORMATION_SCHEMA.COLUMNS tbsc ON t.schema_id = SCHEMA_ID(tbsc.TABLE_SCHEMA)
+				AND t.name = tbsc.TABLE_NAME
+		LEFT JOIN
+			sys.types tps ON col.system_type_id = tps.system_type_id
+				AND col.user_type_id = tps.user_type_id
+		WHERE 
+			 t.is_ms_shipped = 0 
+			 AND CASE 
+				WHEN ind.type_desc = 'CLUSTERED'
+				THEN CASE WHEN tbsc.DATA_TYPE IN ('text', 'ntext', 'image', 'FILESTREAM') THEN 1 ELSE 0 END
+				ELSE CASE WHEN tps.[name] IN ('text', 'ntext', 'image', 'FILESTREAM') THEN 1 ELSE 0 END
+			 END > 0
+		GROUP BY t.object_id, ind.index_id
+	) AS objBadTypes
+	ON objBadTypes.TableObjectId = dt.object_id
+		AND objBadTypes.IndexObjectId = dt.index_id
 WHERE [avg_fragmentation_in_percent] > 10.0
     AND [index_id] > 0 -- игнорируем кучи (heap)
     AND [page_count] > 25 -- игнорируем небольшие таблицы
+	-- Исключаем индексы, содержащие типы text, ntext, image, filestream, т.к. они не подлежат онлайн перестроению
+	AND objBadTypes.IndexObjectId IS NULL 
 GROUP BY [object_id]
   ,[index_id]
   ,[partition_number];
