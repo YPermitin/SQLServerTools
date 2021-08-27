@@ -34,6 +34,7 @@
 | 21 | [Linux](SQL-Server-On-Linux) | Работа со SQL Server под Linux |
 | 22 | [Integration](SQL-Server-Integration) | Информация о средствах интеграции SQL Server с другими системами и наоборот. |
 | 23 | [Jobs](SQL-Server-Jobs) | Информация о заданиях и их настройке. |
+| 24 | [Trace-Flags](SQL-Server-Trace-Flags) | Флаги трассировки. |
 
 ## Полезные ссылки
 
