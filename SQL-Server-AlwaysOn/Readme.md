@@ -1,6 +1,6 @@
 # SQL Server AlwaysOn и некоторые связанные темы
 
-Группы высокой доступности AlwaysOn используются в связке с Windows Server Failover Cluster (WSFC).
+[Группы высокой доступности AlwaysOn](https://docs.microsoft.com/ru-ru/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server?view=sql-server-ver15) используются в связке с Windows Server Failover Cluster (WSFC).
 
 - Простой пример по настройке WSFC и дополнительную информацию о нем можно [посмотреть здесь](Windows%20Server%20Failover%20Cluster)
 

@@ -35,6 +35,7 @@
 | 22 | [Integration](SQL-Server-Integration) | Информация о средствах интеграции SQL Server с другими системами и наоборот. |
 | 23 | [Jobs](SQL-Server-Jobs) | Информация о заданиях и их настройке. |
 | 24 | [Trace-Flags](SQL-Server-Trace-Flags) | Флаги трассировки. |
+| 25 | [Replication-And-High-Availability](SQL-Server-Replication-And-High-Availability) | Информация о механизмах репликации данных, высокой доступности и отказоустойчивости. |
 
 ## Полезные ссылки
 
