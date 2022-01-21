@@ -102,9 +102,9 @@ BEGIN
 	SET @DatabaseName = REPLACE(@DatabaseName, '[', '')
 	SET @DatabaseName = REPLACE(@DatabaseName, ']', '')
 
-	SET @RowModCtr = ISNULL(@RowModCtr,0)
+	SET @RowModCtr = ISNULL(@RowModCtr,0);
 	
-	SET @SQLCommand = TRIM(REPLACE(REPLACE(@SQLCommand, CHAR(13), ''), CHAR(10), ''))
+	SET @SQLCommand = LTRIM(RTRIM((REPLACE(REPLACE(@SQLCommand, CHAR(13), ''), CHAR(10), ''))));
 
 	INSERT INTO [dbo].[MaintenanceActionsLog]
 	(
