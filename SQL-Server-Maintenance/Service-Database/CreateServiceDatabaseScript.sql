@@ -389,8 +389,8 @@ BEGIN
     IF (@PartitionCount > 1 AND @Command <> '''')
         SET @Command = @Command + N'' PARTITION='' + CAST(@PartitionNum AS nvarchar(10));
 
-	SET @Command = TRIM(@Command);
-	SET @CommandSpecial = TRIM(@CommandSpecial);
+	SET @Command = LTRIM(RTRIM(@Command));
+	SET @CommandSpecial = LTRIM(RTRIM(@CommandSpecial));
 
 	IF(LEN(@Command) > 0 OR LEN(@CommandSpecial) > 0)
 	BEGIN		
