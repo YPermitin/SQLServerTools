@@ -36,6 +36,7 @@
 | 23 | [Jobs](SQL-Server-Jobs) | Информация о заданиях и их настройке. |
 | 24 | [Trace-Flags](SQL-Server-Trace-Flags) | Флаги трассировки. |
 | 25 | [Replication-And-High-Availability](SQL-Server-Replication-And-High-Availability) | Информация о механизмах репликации данных, высокой доступности и отказоустойчивости. |
+| 26 | [Track-Data-Changes](SQL-Server-Track-Data-Changes) | Механизмы отслеживания изменения данных. |
 
 ## Полезные ссылки
 
