@@ -72,8 +72,8 @@ BEGIN
 				[index_id] AS [indexid],
 				[partition_number] AS [partitionnum],
 				MAX([avg_fragmentation_in_percent]) AS [frag],
-				MAX([page_count]) AS [page_count],
-				SUM([si].[rowmodctr]) AS [rowmodctr]
+				MAX(CAST([page_count] AS BIGINT)) AS [page_count],
+				SUM(CAST([si].[rowmodctr] AS BIGINT)) AS [rowmodctr]
 			INTO #MaintenanceCommandsTemp
 			FROM sys.dm_db_index_physical_stats (@DBID, NULL, NULL , NULL, N''LIMITED'') dt
 				LEFT JOIN sys.sysindexes si
@@ -90,7 +90,7 @@ BEGIN
 				[Command] nvarchar(max),
 				[Table] nvarchar(250),
 				[Object] nvarchar(250),
-				[Rowmodctr] INT,
+				[Rowmodctr] BIGINT,
 				[Avg_fragmentation_in_percent] INT,
 				[Operation] nvarchar(max),
 			)
