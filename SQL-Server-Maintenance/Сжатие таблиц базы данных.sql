@@ -1,4 +1,9 @@
--- additional info https://docs.microsoft.com/ru-ru/sql/relational-databases/data-compression/data-compression
+/*
+Скрипт сжимает все таблицы базы данных и их индексы. 
+Операция сжатия выполняется для таблицы и всех ее индексов за раз.
+Доп. информация: https://docs.microsoft.com/ru-ru/sql/relational-databases/data-compression/data-compression
+*/
+
 
 declare @table_name sys.sysname, @IS_CLUSTERED bit, @SQL nvarchar(1000)
 declare @c cursor
