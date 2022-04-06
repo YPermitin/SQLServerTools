@@ -89,6 +89,7 @@ CREATE TABLE [dbo].[DatabaseObjectsState](
 	[Rowmodctr] [bigint] NOT NULL,
 	[AvgFragmentationPercent] [int] NOT NULL,
 	[OnlineRebuildSupport] [int] NOT NULL,
+	[Compression] [nvarchar](10) NULL,
  CONSTRAINT [PK__DatabaseObjectsState__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -317,6 +318,7 @@ INSERT INTO [' AS nvarchar(max)) + CAST(@monitoringDatabaseName AS nvarchar(max)
 	,[Rowmodctr]
 	,[AvgFragmentationPercent]
 	,[OnlineRebuildSupport]
+	,[Compression]
 )
 SELECT
   GETDATE() AS [Period],
@@ -326,7 +328,8 @@ SELECT
   MAX(CAST([page_count] AS BIGINT)) AS [page_count], 
   SUM(CAST([si].[rowmodctr] AS BIGINT)) AS [rowmodctr],
   MAX([avg_fragmentation_in_percent]) AS [frag], 
-  MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport]
+  MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport],
+  MAX(p.data_compression_desc) AS [Compression]
 FROM 
   sys.dm_db_index_physical_stats (
     DB_ID(), 
@@ -335,6 +338,8 @@ FROM
     NULL, 
     N''LIMITED''
   ) dt 
+  LEFT JOIN sys.partitions p
+	ON dt.object_id = p.object_id and p.partition_number = 1
   LEFT JOIN sys.sysindexes si ON dt.object_id = si.id 
   LEFT JOIN (
 		SELECT 
@@ -372,7 +377,7 @@ GROUP BY
 	dt.[object_id], 
 	dt.[index_id],
 	ind.[name],
-	[partition_number]
+	dt.[partition_number]
 ' AS nvarchar(max));
 
 	EXECUTE sp_executesql @cmd;
@@ -395,12 +400,30 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
 	@useMonitoringDatabase bit = 1,
 	@monitoringDatabaseName sysname = 'SQLServerMaintenance',
     @usePreparedInformationAboutObjectsStateIfExists bit = 0,
-	@ConditionTableName nvarchar(max) = 'LIKE ''%'''
+	@ConditionTableName nvarchar(max) = 'LIKE ''%''',
+	@ConditionIndexName nvarchar(max) = 'LIKE ''%''',
+	@onlineRebuildAbortAfterWaitMode int = 1,
+	@onlineRebuildWaitMinutes int = 5
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
+	DECLARE @msg nvarchar(max),
+			@abortAfterWaitOnlineRebuil nvarchar(25);
+
+	IF(@onlineRebuildAbortAfterWaitMode = 0)
+	BEGIN
+		SET @abortAfterWaitOnlineRebuil = 'NONE'
+	END ELSE IF(@onlineRebuildAbortAfterWaitMode = 1)
+	BEGIN
+		SET @abortAfterWaitOnlineRebuil = 'SELF'
+	END ELSE IF(@onlineRebuildAbortAfterWaitMode = 2)
+	BEGIN
+		SET @abortAfterWaitOnlineRebuil = 'BLOCKERS'
+	END ELSE
+	BEGIN 
+		SET @abortAfterWaitOnlineRebuil = 'NONE'
+	END
 
 	IF DB_ID(@databaseName) IS NULL
 	BEGIN
@@ -526,6 +549,7 @@ BEGIN
 		AND ISNULL(prt.[Exclude], 0) = 0
 		-- Отбор по имени таблцы
 		AND dt.[TableName] ' AS nvarchar(max)) + CAST(@ConditionTableName  AS nvarchar(max)) + CAST('
+		AND dt.[Object] ' AS nvarchar(max)) + CAST(@ConditionIndexName  AS nvarchar(max)) + CAST('
 END ELSE
 BEGIN
     -- Получаем информацию через анализ базы данных
@@ -545,68 +569,69 @@ BEGIN
         MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport]
     INTO #MaintenanceCommandsTemp
     FROM 
-    sys.dm_db_index_physical_stats (
-        DB_ID(), 
-        NULL, 
-        NULL, 
-        NULL, 
-        N''LIMITED''
-    ) dt 
-    LEFT JOIN sys.sysindexes si ON dt.object_id = si.id 
-    LEFT JOIN (
-        SELECT 
-        t.object_id AS [TableObjectId], 
-        ind.index_id AS [IndexObjectId] 
-        FROM 
-        sys.indexes ind 
-        INNER JOIN sys.index_columns ic ON ind.object_id = ic.object_id 
-        and ind.index_id = ic.index_id 
-        INNER JOIN sys.columns col ON ic.object_id = col.object_id 
-        and ic.column_id = col.column_id 
-        INNER JOIN sys.tables t ON ind.object_id = t.object_id 
-        LEFT JOIN INFORMATION_SCHEMA.COLUMNS tbsc ON t.schema_id = SCHEMA_ID(tbsc.TABLE_SCHEMA) 
-        AND t.name = tbsc.TABLE_NAME 
-        LEFT JOIN sys.types tps ON col.system_type_id = tps.system_type_id 
-        AND col.user_type_id = tps.user_type_id 
-        WHERE 
-        t.is_ms_shipped = 0 
-        AND CASE WHEN ind.type_desc = ''CLUSTERED'' THEN CASE WHEN tbsc.DATA_TYPE IN (
-            ''text'', ''ntext'', ''image'', ''FILESTREAM''
-        ) THEN 1 ELSE 0 END ELSE CASE WHEN tps.[name] IN (
-            ''text'', ''ntext'', ''image'', ''FILESTREAM''
-        ) THEN 1 ELSE 0 END END > 0 
-        GROUP BY 
-        t.object_id, 
-        ind.index_id
-    ) AS objBadTypes ON objBadTypes.TableObjectId = dt.object_id 
-    AND objBadTypes.IndexObjectId = dt.index_id 
-    LEFT JOIN (
-        SELECT 
-        i.[object_id], 
-        i.[index_id], 
-        os.[Priority] AS [Priority],
-        os.[Exclude] AS [Exclude]
-        FROM sys.indexes i
-            left join [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[MaintenanceIndexPriority] os
-            ON i.object_id = OBJECT_ID(os.TableName)
-                AND i.Name = os.IndexName
-        WHERE os.Id IS NOT NULL
-            and os.DatabaseName = ''' AS nvarchar(max)) + CAST(@databaseName AS nvarchar(max)) + CAST('''
-        ) prt ON si.id = prt.[object_id] 
-    AND dt.[index_id] = prt.[index_id] 
-    WHERE 
-    [rowmodctr] IS NOT NULL -- Исключаем служебные объекты, по которым нет изменений
-    AND [avg_fragmentation_in_percent] > @fragmentationPercentMinForMaintenance
-    AND dt.[index_id] > 0 -- игнорируем кучи (heap)
-    AND [page_count] > 25 -- игнорируем небольшие таблицы
-    -- Фильтр по мин. размеру индекса
-    AND (@minIndexSizePages = 0 OR [page_count] >= @minIndexSizePages)
-    -- Фильтр по макс. размеру индекса
-    AND (@maxIndexSizePages = 0 OR [page_count] <= @maxIndexSizePages)
-    -- Убираем обработку индексов, исключенных из обслуживания
-    AND ISNULL(prt.[Exclude], 0) = 0
-	-- Отбор по имени таблцы
-	AND OBJECT_NAME(dt.[object_id]) ' AS nvarchar(max)) + CAST(@ConditionTableName  AS nvarchar(max)) + CAST('
+		sys.dm_db_index_physical_stats (
+			DB_ID(), 
+			NULL, 
+			NULL, 
+			NULL, 
+			N''LIMITED''
+		) dt 
+		LEFT JOIN sys.sysindexes si ON dt.object_id = si.id 
+		LEFT JOIN (
+			SELECT 
+			t.object_id AS [TableObjectId], 
+			ind.index_id AS [IndexObjectId] 
+			FROM 
+			sys.indexes ind 
+			INNER JOIN sys.index_columns ic ON ind.object_id = ic.object_id 
+			and ind.index_id = ic.index_id 
+			INNER JOIN sys.columns col ON ic.object_id = col.object_id 
+			and ic.column_id = col.column_id 
+			INNER JOIN sys.tables t ON ind.object_id = t.object_id 
+			LEFT JOIN INFORMATION_SCHEMA.COLUMNS tbsc ON t.schema_id = SCHEMA_ID(tbsc.TABLE_SCHEMA) 
+			AND t.name = tbsc.TABLE_NAME 
+			LEFT JOIN sys.types tps ON col.system_type_id = tps.system_type_id 
+			AND col.user_type_id = tps.user_type_id 
+			WHERE 
+			t.is_ms_shipped = 0 
+			AND CASE WHEN ind.type_desc = ''CLUSTERED'' THEN CASE WHEN tbsc.DATA_TYPE IN (
+				''text'', ''ntext'', ''image'', ''FILESTREAM''
+			) THEN 1 ELSE 0 END ELSE CASE WHEN tps.[name] IN (
+				''text'', ''ntext'', ''image'', ''FILESTREAM''
+			) THEN 1 ELSE 0 END END > 0 
+			GROUP BY 
+			t.object_id, 
+			ind.index_id
+		) AS objBadTypes ON objBadTypes.TableObjectId = dt.object_id 
+		AND objBadTypes.IndexObjectId = dt.index_id 
+		LEFT JOIN (
+			SELECT 
+			i.[object_id], 
+			i.[index_id], 
+			os.[Priority] AS [Priority],
+			os.[Exclude] AS [Exclude]
+			FROM sys.indexes i
+				left join [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[MaintenanceIndexPriority] os
+				ON i.object_id = OBJECT_ID(os.TableName)
+					AND i.Name = os.IndexName
+			WHERE os.Id IS NOT NULL
+				and os.DatabaseName = ''' AS nvarchar(max)) + CAST(@databaseName AS nvarchar(max)) + CAST('''
+			) prt ON si.id = prt.[object_id] 
+		AND dt.[index_id] = prt.[index_id] 
+	WHERE 
+		[rowmodctr] IS NOT NULL -- Исключаем служебные объекты, по которым нет изменений
+		AND [avg_fragmentation_in_percent] > @fragmentationPercentMinForMaintenance
+		AND dt.[index_id] > 0 -- игнорируем кучи (heap)
+		AND [page_count] > 25 -- игнорируем небольшие таблицы
+		-- Фильтр по мин. размеру индекса
+		AND (@minIndexSizePages = 0 OR [page_count] >= @minIndexSizePages)
+		-- Фильтр по макс. размеру индекса
+		AND (@maxIndexSizePages = 0 OR [page_count] <= @maxIndexSizePages)
+		-- Убираем обработку индексов, исключенных из обслуживания
+		AND ISNULL(prt.[Exclude], 0) = 0
+		-- Отбор по имени таблцы
+		AND OBJECT_NAME(dt.[object_id]) ' AS nvarchar(max)) + CAST(@ConditionTableName  AS nvarchar(max)) + CAST('
+		AND si.[name] ' AS nvarchar(max)) + CAST(@ConditionIndexName  AS nvarchar(max)) + CAST('
     GROUP BY
         dt.[object_id], 
         dt.[index_id],
@@ -656,7 +681,7 @@ BEGIN
 	END ELSE IF (@useOnlineIndexRebuild = 1 AND @OnlineRebuildSupport = 1) -- Только с поддержкой онлайн перестроения
 	BEGIN
 		SET @CommandSpecial = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName 
-            + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = 5 MINUTES, ABORT_AFTER_WAIT = SELF)))'';
+            + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';
 		SET @Operation = ''REBUILD INDEX''
 	END ELSE IF(@useOnlineIndexRebuild = 2 AND @OnlineRebuildSupport = 0) -- Только без поддержки
 	BEGIN
@@ -668,7 +693,7 @@ BEGIN
 		if(@OnlineRebuildSupport = 1)
 		BEGIN
 			SET @CommandSpecial = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName 
-				+ N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = 5 MINUTES, ABORT_AFTER_WAIT = SELF)))'';			
+				+ N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';			
 		END ELSE
 		BEGIN
 			SET @Command = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName 
