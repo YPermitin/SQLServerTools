@@ -403,13 +403,15 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
 	@ConditionTableName nvarchar(max) = 'LIKE ''%''',
 	@ConditionIndexName nvarchar(max) = 'LIKE ''%''',
 	@onlineRebuildAbortAfterWaitMode int = 1,
-	@onlineRebuildWaitMinutes int = 5
+	@onlineRebuildWaitMinutes int = 5,
+	@maxTransactionLogSizeUsagePercent int = 100
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @msg nvarchar(max),
-			@abortAfterWaitOnlineRebuil nvarchar(25);
+			@abortAfterWaitOnlineRebuil nvarchar(25),
+			@currentTransactionLogSizeUsagePercent int;
 
 	IF(@onlineRebuildAbortAfterWaitMode = 0)
 	BEGIN
@@ -432,17 +434,42 @@ BEGIN
 		RETURN -1;
 	END
 
+	-- Информация о размере лога транзакций
+	IF OBJECT_ID('tempdb..#tranLogInfo') IS NOT NULL
+		DROP TABLE #tranLogInfo;
+	CREATE TABLE #tranLogInfo 
+	(
+		servername varchar(20) not null default @@servername,
+		dbname varchar(50), 
+		logsize real, 
+		logspace real, 
+		stat int
+	)
+
+	-- Проверка процента занятого места в логе транзакций
+	TRUNCATE TABLE #tranLogInfo;
+	INSERT INTO #tranLogInfo (dbname,logsize,logspace,stat) exec('dbcc sqlperf(logspace)')
+	SELECT @currentTransactionLogSizeUsagePercent = logspace
+	FROM #tranLogInfo WHERE dbname = @databaseName
+	IF(@currentTransactionLogSizeUsagePercent >= @maxTransactionLogSizeUsagePercent)
+	BEGIN
+		-- Процент занятого места в файлах лога транзакций превышает указанный порог
+		RETURN 0;
+	END
+
+	IF OBJECT_ID('tempdb..#tranLogInfo') IS NOT NULL
+		DROP TABLE #tranLogInfo;
+
 	DECLARE @cmd nvarchar(max);
 	SET @cmd = 
 CAST('USE [' AS nvarchar(max)) + CAST(@databasename AS nvarchar(max)) + CAST(']
 SET NOCOUNT ON;
 DECLARE
 	-- Текущее время
-	@timeNow TIME = CAST(GETDATE() AS TIME)
-	-- Начало доступного интервала времени обслуживания
-	-- @timeFrom TIME
-	-- Окончание доступного интервала времени обслуживания
-	-- @timeTo TIME
+	@timeNow TIME = CAST(GETDATE() AS TIME),
+	-- Текущий процент использования файла лога транзакций
+	@currentTransactionLogSizeUsagePercent int;
+
 -- Проверка доступен ли запуск обслуживания в текущее время
 IF (@timeTo >= @timeFrom) BEGIN
 	IF(NOT (@timeFrom <= @timeNow AND @timeTo >= @timeNow))
@@ -452,6 +479,7 @@ IF (@timeTo >= @timeFrom) BEGIN
 			OR (@timeTo >= @timeNow AND ''00:00:00'' <= @timeNow)))  
 				RETURN;
 END
+
 -- Служебные переменные
 DECLARE
 	@DBID SMALLINT = DB_ID()
@@ -498,6 +526,17 @@ CREATE TABLE #MaintenanceCommands
     [Priority] INT,
 	[OnlineRebuildSupport] INT,
 	[UseOnlineRebuild] INT
+)
+
+IF OBJECT_ID(''tempdb..#tranLogInfo'') IS NOT NULL
+	DROP TABLE #tranLogInfo;
+CREATE TABLE #tranLogInfo 
+(
+	servername varchar(20) not null default @@servername,
+	dbname varchar(50), 
+	logsize real, 
+	logspace real, 
+	stat int
 )
 
 DECLARE @usedCacheAboutObjectsState bit = 0;
@@ -747,6 +786,18 @@ BEGIN
             OR (@timeTo >= @timeNow AND ''00:00:00'' <= @timeNow)))  
         RETURN;
     END
+
+	-- Проверка процента занятого места в логе транзакций
+	TRUNCATE TABLE #tranLogInfo;
+	INSERT INTO #tranLogInfo (dbname,logsize,logspace,stat) exec(''dbcc sqlperf(logspace)'')
+	SELECT @currentTransactionLogSizeUsagePercent = logspace
+	FROM #tranLogInfo WHERE dbname = @databaseName
+	IF(@currentTransactionLogSizeUsagePercent >= @maxTransactionLogSizeUsagePercent)
+	BEGIN
+		-- Процент занятого места в файлах лога транзакций превышает указанный порог
+		RETURN;
+	END
+
     SET @StartDate = GetDate();
     BEGIN TRY 
 		DECLARE @currentSQL nvarchar(max) = ''''
@@ -818,13 +869,13 @@ IF OBJECT_ID(''tempdb..#MaintenanceCommandsTemp'') IS NOT NULL
 		@minIndexSizePages int, @maxIndexSizePages int, @useOnlineIndexRebuild int,
 		@maxIndexSizeForReorganizingPages int, 
 		@useMonitoringDatabase bit, @monitoringDatabaseName sysname, @usePreparedInformationAboutObjectsStateIfExists bit,
-		@databaseName sysname',
+		@databaseName sysname, @maxTransactionLogSizeUsagePercent int',
 		@timeFrom, @timeTo, @fragmentationPercentForRebuild, 
 		@fragmentationPercentMinForMaintenance, @maxDop, 
 		@minIndexSizePages, @maxIndexSizePages, @useOnlineIndexRebuild,
 		@maxIndexSizeForReorganizingPages,
 		@useMonitoringDatabase, @monitoringDatabaseName, @usePreparedInformationAboutObjectsStateIfExists,
-		@databaseName;
+		@databaseName, @maxTransactionLogSizeUsagePercent;
 
     RETURN 0
 END
