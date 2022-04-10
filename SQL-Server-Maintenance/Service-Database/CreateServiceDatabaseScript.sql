@@ -90,6 +90,7 @@ CREATE TABLE [dbo].[DatabaseObjectsState](
 	[AvgFragmentationPercent] [int] NOT NULL,
 	[OnlineRebuildSupport] [int] NOT NULL,
 	[Compression] [nvarchar](10) NULL,
+	[PartitionCount] [bigint] NULL,
  CONSTRAINT [PK__DatabaseObjectsState__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -319,6 +320,7 @@ INSERT INTO [' AS nvarchar(max)) + CAST(@monitoringDatabaseName AS nvarchar(max)
 	,[AvgFragmentationPercent]
 	,[OnlineRebuildSupport]
 	,[Compression]
+	,[PartitionCount]
 )
 SELECT
   GETDATE() AS [Period],
@@ -329,7 +331,8 @@ SELECT
   SUM(CAST([si].[rowmodctr] AS BIGINT)) AS [rowmodctr],
   MAX([avg_fragmentation_in_percent]) AS [frag], 
   MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport],
-  MAX(p.data_compression_desc) AS [Compression]
+  MAX(p.data_compression_desc) AS [Compression],
+  MAX(p_count.[PartitionCount]) AS [PartitionCount]
 FROM 
   sys.dm_db_index_physical_stats (
     DB_ID(), 
@@ -370,6 +373,15 @@ FROM
 	  AND objBadTypes.IndexObjectId = dt.index_id
 	LEFT JOIN sys.indexes AS [ind]
 		ON dt.object_id = [ind].object_id AND dt.index_id = [ind].[index_id]
+	LEFT JOIN (
+		SELECT
+			object_id,
+			index_id,
+			COUNT(DISTINCT partition_number) AS [PartitionCount]
+		FROM sys.partitions p
+		GROUP BY object_id, index_id
+	) p_count
+	ON dt.object_id = p_count.object_id AND dt.index_id = p_count.index_id
 WHERE 
   [rowmodctr] IS NOT NULL -- Исключаем служебные объекты, по которым нет изменений
   AND dt.[index_id] > 0 -- игнорируем кучи (heap)
@@ -525,7 +537,8 @@ CREATE TABLE #MaintenanceCommands
     [Operation] nvarchar(max),
     [Priority] INT,
 	[OnlineRebuildSupport] INT,
-	[UseOnlineRebuild] INT
+	[UseOnlineRebuild] INT,
+	[PartitionCount] BIGINT
 )
 
 IF OBJECT_ID(''tempdb..#tranLogInfo'') IS NOT NULL
@@ -561,6 +574,7 @@ BEGIN
 	  ,ISNULL(prt.[Priority], 999) AS [Priority]
 	  ,ISNULL(prt.[Exclude], 0) AS Exclude
 	  ,dt.[OnlineRebuildSupport] AS [OnlineRebuildSupport]
+	  ,dt.[PartitionCount] AS [PartitionCount]
 	INTO #MaintenanceCommandsTempCached
 	FROM [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[DatabaseObjectsState] dt
 		LEFT JOIN sys.indexes ind
@@ -605,7 +619,8 @@ BEGIN
         MAX(
             CAST(ISNULL(prt.[Exclude], 0) AS INT)
         ) AS [Exclude],
-        MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport]
+        MIN(CASE WHEN objBadTypes.IndexObjectId IS NULL THEN 1 ELSE 0 END) AS [OnlineRebuildSupport],
+		MAX(p_count.[PartitionCount]) AS [PartitionCount]
     INTO #MaintenanceCommandsTemp
     FROM 
 		sys.dm_db_index_physical_stats (
@@ -657,6 +672,15 @@ BEGIN
 				and os.DatabaseName = ''' AS nvarchar(max)) + CAST(@databaseName AS nvarchar(max)) + CAST('''
 			) prt ON si.id = prt.[object_id] 
 		AND dt.[index_id] = prt.[index_id] 
+		LEFT JOIN (
+			SELECT
+				object_id,
+				index_id,
+				COUNT(DISTINCT partition_number) AS [PartitionCount]
+			FROM sys.partitions p
+			GROUP BY object_id, index_id
+		) p_count
+		ON dt.object_id = p_count.object_id AND dt.index_id = p_count.index_id
 	WHERE 
 		[rowmodctr] IS NOT NULL -- Исключаем служебные объекты, по которым нет изменений
 		AND [avg_fragmentation_in_percent] > @fragmentationPercentMinForMaintenance
@@ -680,30 +704,29 @@ END
 IF(@usedCacheAboutObjectsState = 1)
 BEGIN
 	DECLARE partitions CURSOR FOR 
-	SELECT [objectid], [indexid], [partitionnum], [frag], [page_count], [rowmodctr], [Priority], [OnlineRebuildSupport]
+	SELECT [objectid], [indexid], [partitionnum], [frag], [page_count], [rowmodctr], [Priority], [OnlineRebuildSupport], [PartitionCount]
 	FROM #MaintenanceCommandsTempCached;
 END ELSE
 BEGIN
 	DECLARE partitions CURSOR FOR 
-	SELECT [objectid], [indexid], [partitionnum], [frag], [page_count], [rowmodctr], [Priority], [OnlineRebuildSupport]
+	SELECT [objectid], [indexid], [partitionnum], [frag], [page_count], [rowmodctr], [Priority], [OnlineRebuildSupport], [PartitionCount]
 	FROM #MaintenanceCommandsTemp;
 END
 
 OPEN partitions;
 WHILE (1=1)
 BEGIN
-    FETCH NEXT FROM partitions INTO @ObjectID, @IndexID, @PartitionNum, @frag, @PageCount, @RowModCtr, @Priority, @OnlineRebuildSupport;
+    FETCH NEXT FROM partitions INTO @ObjectID, @IndexID, @PartitionNum, @frag, @PageCount, @RowModCtr, @Priority, @OnlineRebuildSupport, @PartitionCount;
     IF @@FETCH_STATUS < 0 BREAK;
-    SELECT @ObjectName = QUOTENAME([o].[name]), @SchemaName = QUOTENAME([s].[name])
+    
+	SELECT @ObjectName = QUOTENAME([o].[name]), @SchemaName = QUOTENAME([s].[name])
     FROM sys.objects AS o
         JOIN sys.schemas AS s ON [s].[schema_id] = [o].[schema_id]
     WHERE [o].[object_id] = @ObjectID;
     SELECT @IndexName = QUOTENAME(name)
     FROM sys.indexes
     WHERE [object_id] = @ObjectID AND [index_id] = @IndexID;
-    SELECT @PartitionCount = count (*)
-    FROM sys.partitions
-    WHERE [object_id] = @ObjectID AND [index_id] = @IndexID;
+    
     SET @CommandSpecial = '''';
 	SET @Command = '''';
 	-- Реорганизация индекса
@@ -742,6 +765,7 @@ BEGIN
 	END
     IF (@PartitionCount > 1 AND @Command <> '''')
         SET @Command = @Command + N'' PARTITION='' + CAST(@PartitionNum AS nvarchar(10));
+
 	SET @Command = LTRIM(RTRIM(@Command));
 	SET @CommandSpecial = LTRIM(RTRIM(@CommandSpecial));
 	IF(LEN(@Command) > 0 OR LEN(@CommandSpecial) > 0)
