@@ -416,14 +416,16 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
 	@ConditionIndexName nvarchar(max) = 'LIKE ''%''',
 	@onlineRebuildAbortAfterWaitMode int = 1,
 	@onlineRebuildWaitMinutes int = 5,
-	@maxTransactionLogSizeUsagePercent int = 100
+	@maxTransactionLogSizeUsagePercent int = 100,	
+	@maxTransactionLogSizeMB bigint = 0
 AS
 BEGIN
 	SET NOCOUNT ON;
 
 	DECLARE @msg nvarchar(max),
 			@abortAfterWaitOnlineRebuil nvarchar(25),
-			@currentTransactionLogSizeUsagePercent int;
+			@currentTransactionLogSizeUsagePercent int,
+			@currentTransactionLogSizeMB int;
 
 	IF(@onlineRebuildAbortAfterWaitMode = 0)
 	BEGIN
@@ -461,11 +463,18 @@ BEGIN
 	-- Проверка процента занятого места в логе транзакций
 	TRUNCATE TABLE #tranLogInfo;
 	INSERT INTO #tranLogInfo (dbname,logsize,logspace,stat) exec('dbcc sqlperf(logspace)')
-	SELECT @currentTransactionLogSizeUsagePercent = logspace
+	SELECT 
+		@currentTransactionLogSizeUsagePercent = logspace,
+		@currentTransactionLogSizeMB = logsize * (logspace / 100)
 	FROM #tranLogInfo WHERE dbname = @databaseName
 	IF(@currentTransactionLogSizeUsagePercent >= @maxTransactionLogSizeUsagePercent)
 	BEGIN
 		-- Процент занятого места в файлах лога транзакций превышает указанный порог
+		RETURN 0;
+	END
+	IF(@maxTransactionLogSizeMB > 0 AND @currentTransactionLogSizeMB > @maxTransactionLogSizeMB)
+	BEGIN
+		-- Размер занятого места в файлах лога транзакций превышает указанный порог в МБ
 		RETURN 0;
 	END
 
@@ -480,7 +489,8 @@ DECLARE
 	-- Текущее время
 	@timeNow TIME = CAST(GETDATE() AS TIME),
 	-- Текущий процент использования файла лога транзакций
-	@currentTransactionLogSizeUsagePercent int;
+	@currentTransactionLogSizeUsagePercent int,
+	@currentTransactionLogSizeMB bigint;
 
 -- Проверка доступен ли запуск обслуживания в текущее время
 IF (@timeTo >= @timeFrom) BEGIN
@@ -814,11 +824,18 @@ BEGIN
 	-- Проверка процента занятого места в логе транзакций
 	TRUNCATE TABLE #tranLogInfo;
 	INSERT INTO #tranLogInfo (dbname,logsize,logspace,stat) exec(''dbcc sqlperf(logspace)'')
-	SELECT @currentTransactionLogSizeUsagePercent = logspace
+	SELECT
+		@currentTransactionLogSizeUsagePercent = logspace,
+		@currentTransactionLogSizeMB = logsize * (logspace / 100)
 	FROM #tranLogInfo WHERE dbname = @databaseName
 	IF(@currentTransactionLogSizeUsagePercent >= @maxTransactionLogSizeUsagePercent)
 	BEGIN
 		-- Процент занятого места в файлах лога транзакций превышает указанный порог
+		RETURN;
+	END
+	IF(@maxTransactionLogSizeMB > 0 AND @currentTransactionLogSizeMB > @maxTransactionLogSizeMB)
+	BEGIN
+		-- Размер занятого места в файлах лога транзакций превышает указанный порог в МБ
 		RETURN;
 	END
 
@@ -893,13 +910,13 @@ IF OBJECT_ID(''tempdb..#MaintenanceCommandsTemp'') IS NOT NULL
 		@minIndexSizePages int, @maxIndexSizePages int, @useOnlineIndexRebuild int,
 		@maxIndexSizeForReorganizingPages int, 
 		@useMonitoringDatabase bit, @monitoringDatabaseName sysname, @usePreparedInformationAboutObjectsStateIfExists bit,
-		@databaseName sysname, @maxTransactionLogSizeUsagePercent int',
+		@databaseName sysname, @maxTransactionLogSizeUsagePercent int, @maxTransactionLogSizeMB bigint',
 		@timeFrom, @timeTo, @fragmentationPercentForRebuild, 
 		@fragmentationPercentMinForMaintenance, @maxDop, 
 		@minIndexSizePages, @maxIndexSizePages, @useOnlineIndexRebuild,
 		@maxIndexSizeForReorganizingPages,
 		@useMonitoringDatabase, @monitoringDatabaseName, @usePreparedInformationAboutObjectsStateIfExists,
-		@databaseName, @maxTransactionLogSizeUsagePercent;
+		@databaseName, @maxTransactionLogSizeUsagePercent, @maxTransactionLogSizeMB;
 
     RETURN 0
 END
