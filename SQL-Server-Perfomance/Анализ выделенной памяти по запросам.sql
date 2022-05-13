@@ -3,8 +3,9 @@
 
 SELECT
 	sqltext.text AS [SqlText],
+	DB_NAME(s.database_id) AS [DatabaseName],
 	qerPlan.query_plan AS [SqlPlan],
-	session_id,
+	mg.session_id,
 	request_id,
 	scheduler_id,
 	dop,
@@ -19,5 +20,6 @@ SELECT
 	timeout_sec,
 	ideal_memory_kb
 FROM sys.dm_exec_query_memory_grants mg
-	CROSS APPLY sys.dm_exec_sql_text(mg.sql_handle) AS sqltext
-	CROSS APPLY sys.dm_exec_query_plan(mg.plan_handle) qerPlan
+	LEFT JOIN sys.dm_exec_sessions s on mg.session_id = s.session_id
+	OUTER APPLY sys.dm_exec_sql_text(mg.sql_handle) AS sqltext
+	OUTER APPLY sys.dm_exec_query_plan(mg.plan_handle) qerPlan
