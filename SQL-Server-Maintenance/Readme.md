@@ -36,3 +36,4 @@
 * [sp_updatestats overview and usage](https://www.sqlshack.com/sp_updatestats-overview-and-usage/) - информация о хранимой процедуре sp_updatestats, поставляемой по умолчанию с СУБД.
 * [UPDATE STATISTICS: the Secret IO Explosion](https://www.brentozar.com/archive/2014/01/update-statistics-the-secret-io-explosion/) - почему обновление статистики может привести к проблемам с операциями ввода-вывода.
 * [SQL Server Index and Statistics Maintenance](https://ola.hallengren.com/sql-server-index-and-statistics-maintenance.html) - пример решения для обслуживания индексов и статистик.
+* [SQL Server 2017 Resumable Online Index Rebuilds](https://www.mssqltips.com/sqlservertip/4987/sql-server-2017-resumable-online-index-rebuilds/) - операции возобновляемого перестроения индексов.
