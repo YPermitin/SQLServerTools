@@ -529,7 +529,7 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
 	@useResumableIndexRebuildIfAvailable int = 0,
     @maxIndexSizeForReorganizingPages int = 6553600,
     @useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMonitoring',
+    @monitoringDatabaseName sysname = 'SQLServerMaintenance',
     @usePreparedInformationAboutObjectsStateIfExists bit = 0,
     @ConditionTableName nvarchar(max) = 'LIKE ''%''',
     @ConditionIndexName nvarchar(max) = 'LIKE ''%''',
