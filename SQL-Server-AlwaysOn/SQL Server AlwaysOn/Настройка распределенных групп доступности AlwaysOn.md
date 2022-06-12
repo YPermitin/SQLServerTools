@@ -259,7 +259,7 @@ GO
 
 ```sql
 CREATE AVAILABILITY GROUP [AG-Tyumen-Distributed]
-   WITH (DISTRIBUTED)   
+   JOIN   
    AVAILABILITY GROUP ON  
       'AG-Tyumen' WITH    
       (   
@@ -333,7 +333,7 @@ GO
 
 ```sql
 CREATE AVAILABILITY GROUP [AG-Novosibirsk-Distributed]
-   WITH (DISTRIBUTED)   
+   JOIN     
    AVAILABILITY GROUP ON  
       'AG-Novosibirsk' WITH    
       (   
