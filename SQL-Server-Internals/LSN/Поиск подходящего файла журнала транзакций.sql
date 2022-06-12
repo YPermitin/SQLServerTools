@@ -16,7 +16,7 @@ GO
 
 -- Имя базы данных, с которой был снят бэкап
 DECLARE @sourceDatabaseName sysname = 'DatabaseName';
--- Имя базы данных, на которую нужно
+-- Имя базы данных, на которую нужно восстановить бэкап
 DECLARE @destinationDatabaseName sysname = 'DatabaseName';
 -- Каталог с файлами бэкапов для анализа
 DECLARE @backupPath NVARCHAR(1024) = 'D:\BackupsFolderPath';
