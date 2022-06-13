@@ -212,6 +212,16 @@ SELECT TOP (1000) [ID]
 
 Если новая запись есть во всех репликах, то группа доступности работает как надо!
 
+## При ручном восстановлении базы
+
+В случаях, когда база данных на вторичной реплике была восстановлена вручную в режие "NORECOVERY", ее можно включить в группу доступности AlwaysOn вручную командой:
+
+```sql
+ALTER DATABASE [DatabaseName] SET HADR AVAILABILITY GROUP = [AlwaysOnGroupName];  
+```
+
+Главное перед этим на базу данных также восстановить последние файлы лога транзакций.
+
 ## Полезные ссылки
 
 * [Администрирование группы доступности](https://docs.microsoft.com/ru-ru/sql/database-engine/availability-groups/windows/administration-of-an-availability-group-sql-server?view=sql-server-2017)
