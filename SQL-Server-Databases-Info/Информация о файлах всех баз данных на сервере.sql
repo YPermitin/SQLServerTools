@@ -1,3 +1,6 @@
+IF OBJECT_ID(N'tempdb..#db_files') IS NOT NULL
+	DROP TABLE #db_files;
+    
 create table #db_files(
     db_files varchar(300),
     file_loc varchar(300),
@@ -45,3 +48,6 @@ create table #db_files(
  select 
     * 
  from #db_files
+ 
+ IF OBJECT_ID(N'tempdb..#db_files') IS NOT NULL
+	DROP TABLE #db_files;
