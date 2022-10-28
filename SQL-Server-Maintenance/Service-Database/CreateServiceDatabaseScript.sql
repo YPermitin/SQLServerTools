@@ -536,7 +536,8 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
     @onlineRebuildAbortAfterWaitMode int = 1,
     @onlineRebuildWaitMinutes int = 5,
     @maxTransactionLogSizeUsagePercent int = 100,  
-    @maxTransactionLogSizeMB bigint = 0
+    @maxTransactionLogSizeMB bigint = 0,
+	@fillFactorForIndex int = 0
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -555,6 +556,18 @@ BEGIN
 			-- Например, если они были обслужены через механизм возобновляемых перестроений,
 			-- еще до запуска основного обслуживания
 			@excludeIndexes XML;
+
+	IF(@fillFactorForIndex = 0)
+	BEGIN
+		select
+			@fillFactorForIndex = CAST(value_in_use AS INT)
+		from sys.configurations
+		where name = 'fill factor (%)'
+	END
+	IF(@fillFactorForIndex = 0)
+	BEGIN
+		SET @fillFactorForIndex = 100
+	END
  
     IF(@onlineRebuildAbortAfterWaitMode = 0)
     BEGIN
@@ -582,8 +595,8 @@ BEGIN
         DROP TABLE #tranLogInfo;
     CREATE TABLE #tranLogInfo
     (
-        servername varchar(250) not null default @@servername,
-        dbname varchar(250),
+        servername varchar(255) not null default @@servername,
+        dbname varchar(255),
         logsize real,
         logspace real,
         stat int
@@ -851,8 +864,8 @@ IF OBJECT_ID(''tempdb..#tranLogInfo'') IS NOT NULL
     DROP TABLE #tranLogInfo;
 CREATE TABLE #tranLogInfo
 (
-    servername varchar(250) not null default @@servername,
-    dbname varchar(250),
+    servername varchar(255) not null default @@servername,
+    dbname varchar(255),
     logsize real,
     logspace real,
     stat int
@@ -1054,30 +1067,30 @@ BEGIN
     END ELSE IF(@useOnlineIndexRebuild = 0) -- Не использовать онлайн-перестроение
     BEGIN
         SET @Command = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-            + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
+            + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
         SET @Operation = ''REBUILD INDEX''
     END ELSE IF (@useOnlineIndexRebuild = 1 AND @OnlineRebuildSupport = 1) -- Только с поддержкой онлайн перестроения
     BEGIN
         SET @CommandSpecial = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-            + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '','' 
+            + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '','' 
 			+ (CASE WHEN @useResumableIndexRebuild > 0 THEN '' RESUMABLE = ON, '' ELSE '''' END) 
 			+ '' ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';
         SET @Operation = ''REBUILD INDEX''
     END ELSE IF(@useOnlineIndexRebuild = 2 AND @OnlineRebuildSupport = 0) -- Только без поддержки
     BEGIN
         SET @Command = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-            + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
+            + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
         SET @Operation = ''REBUILD INDEX''
     END ELSE IF(@useOnlineIndexRebuild = 3) -- Использовать онлайн перестроение где возможно
     BEGIN
         if(@OnlineRebuildSupport = 1)
         BEGIN
             SET @CommandSpecial = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-                + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';        
+                + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';        
         END ELSE
         BEGIN
             SET @Command = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-                + N'' REBUILD WITH (MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
+                + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '')'';
         END
         SET @Operation = ''REBUILD INDEX''
     END
@@ -1222,14 +1235,14 @@ IF OBJECT_ID(''tempdb..#MaintenanceCommandsTemp'') IS NOT NULL
         @maxIndexSizeForReorganizingPages int,
         @useMonitoringDatabase bit, @monitoringDatabaseName sysname, @usePreparedInformationAboutObjectsStateIfExists bit,
         @databaseName sysname, @maxTransactionLogSizeUsagePercent int, @maxTransactionLogSizeMB bigint, @useResumableIndexRebuild bit,
-		@excludeIndexes XML',
+		@excludeIndexes XML, @fillFactorForIndex int',
         @timeFrom, @timeTo, @fragmentationPercentForRebuild,
         @fragmentationPercentMinForMaintenance, @maxDop,
         @minIndexSizePages, @maxIndexSizePages, @useOnlineIndexRebuild,
         @maxIndexSizeForReorganizingPages,
         @useMonitoringDatabase, @monitoringDatabaseName, @usePreparedInformationAboutObjectsStateIfExists,
         @databaseName, @maxTransactionLogSizeUsagePercent, @maxTransactionLogSizeMB, @useResumableIndexRebuild,
-		@excludeIndexes;
+		@excludeIndexes, @fillFactorForIndex;
 
     RETURN 0
 END
