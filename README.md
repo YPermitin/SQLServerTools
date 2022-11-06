@@ -22,20 +22,21 @@
 | 10 | [Maintenance](SQL-Server-Maintenance) | Обслуживание баз данных и сервера |
 | 11 | [1С-Extended-Settings](1С-Extended-Database-Settings-Maintenance) | Инструмент для поддержки произвольных индексов, изменение существующих объектов, сжатия таблиц и индексов, файловых групп и прочего для баз 1С:Предприятия |
 | 12 | [BCP](SQL-Server-BCP) | Работа с утилитой Bulk Insert Programm (BCP) |
-| 13 | [AlwaysOn](SQL-Server-AlwaysOn) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
-| 14 | [Diagnostics](SQL-Server-Diagnostics) | Диагностика работы SQL Server |
-| 15 | [FullText-Search](SQL-Server-FullText-Search) | Полнотекстовый поиск и все что с ним связано |
-| 16 | [TempDB](SQL-Server-TempDB) | Все что связано с TempDB и временными таблицами |
-| 17 | [Monitoring](SQL-Server-Monitoring) | Мониторинг стабильности и производительности |
-| 18 | [Internals](SQL-Server-Internals) | Информация о внутренностях работы СУБД |
-| 19 | [SSAS](SQL-Server-Analysis-Services) | Подраздел об [SQL Server Analysis Services](https://docs.microsoft.com/ru-ru/analysis-services/analysis-services-overview?view=asallproducts-allversions) |
-| 20 | [PowerShell](SQL-Server-And-PowerShell) | Работа со SQL Server из PowerShell |
-| 21 | [Linux](SQL-Server-On-Linux) | Работа со SQL Server под Linux |
-| 22 | [Integration](SQL-Server-Integration) | Информация о средствах интеграции SQL Server с другими системами и наоборот. |
-| 23 | [Jobs](SQL-Server-Jobs) | Информация о заданиях и их настройке. |
-| 24 | [Trace-Flags](SQL-Server-Trace-Flags) | Флаги трассировки. |
-| 25 | [Replication-And-High-Availability](SQL-Server-Replication-And-High-Availability) | Информация о механизмах репликации данных, высокой доступности и отказоустойчивости. |
-| 26 | [Track-Data-Changes](SQL-Server-Track-Data-Changes) | Механизмы отслеживания изменения данных. |
+| 13 | [Bulk-Operations](SQL-Server-Bulk-Operations/) | Раздел с полезной информацией об операциях массовой модицикации данных |
+| 14 | [AlwaysOn](SQL-Server-AlwaysOn) | О работе с группами высокой доступности AlwaysOn, настройке WSFC и др. |
+| 15 | [Diagnostics](SQL-Server-Diagnostics) | Диагностика работы SQL Server |
+| 16 | [FullText-Search](SQL-Server-FullText-Search) | Полнотекстовый поиск и все что с ним связано |
+| 17 | [TempDB](SQL-Server-TempDB) | Все что связано с TempDB и временными таблицами |
+| 18 | [Monitoring](SQL-Server-Monitoring) | Мониторинг стабильности и производительности |
+| 19 | [Internals](SQL-Server-Internals) | Информация о внутренностях работы СУБД |
+| 20 | [SSAS](SQL-Server-Analysis-Services) | Подраздел об [SQL Server Analysis Services](https://docs.microsoft.com/ru-ru/analysis-services/analysis-services-overview?view=asallproducts-allversions) |
+| 21 | [PowerShell](SQL-Server-And-PowerShell) | Работа со SQL Server из PowerShell |
+| 22 | [Linux](SQL-Server-On-Linux) | Работа со SQL Server под Linux |
+| 23 | [Integration](SQL-Server-Integration) | Информация о средствах интеграции SQL Server с другими системами и наоборот. |
+| 24 | [Jobs](SQL-Server-Jobs) | Информация о заданиях и их настройке. |
+| 25 | [Trace-Flags](SQL-Server-Trace-Flags) | Флаги трассировки. |
+| 26 | [Replication-And-High-Availability](SQL-Server-Replication-And-High-Availability) | Информация о механизмах репликации данных, высокой доступности и отказоустойчивости. |
+| 27 | [Track-Data-Changes](SQL-Server-Track-Data-Changes) | Механизмы отслеживания изменения данных. |
 
 ## Полезные ссылки
 
