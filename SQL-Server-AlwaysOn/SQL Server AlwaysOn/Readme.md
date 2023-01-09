@@ -67,6 +67,8 @@
 
 При работе с технологией AlwaysOn Вы можете встретиться с некоторыми нетривиальными вопросами. В [этом мануале](Некоторые%20особенности%20при%20работе%20с%20AlwaysOn.md) есть описание некоторых ситуаций, вопросов и проблем с описанием и решениями.
 
+Отдельно рассмотрена проблема с [кэшем объектов статистики на репликах AlwaysOn](%D0%98%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%BA%D1%8D%D1%88%D0%B0%20%D0%BE%D0%B1%D1%8A%D0%B5%D0%BA%D1%82%D0%BE%D0%B2%20%D0%B4%D0%BB%D1%8F%20%D1%80%D0%B5%D0%BF%D0%BB%D0%B8%D0%BA%20AlwaysOn.md).
+
 ## Полезные ссылки
 
 - [Группы доступности Always On](https://docs.microsoft.com/ru-ru/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server?view=sql-server-2017)
