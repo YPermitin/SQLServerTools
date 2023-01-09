@@ -40,7 +40,7 @@ FROM sys.stats AS s
 	ON s.object_id = o.object_id
 WHERE s.auto_created = 1
 	AND o.is_ms_shipped = 0
-	AND EXISTS(select *	from [sys].[dm_db_stats_properties] (s.object_id, s.stats_id))
+	AND NOT EXISTS(select *	from [sys].[dm_db_stats_properties] (s.object_id, s.stats_id))
 ```
 
 Запрос необходимо выполнять в контексте базы данных, для которой понадобилась проверка.
