@@ -19,7 +19,31 @@ General SQL Server error: Check messages from the SQL Server
 
 ## Решение проблемы
 
-Есть несколько способов решени проблемы.
+Есть несколько способов решени проблемы. Но перед этим обязательно убедитесь, что "битые" статистики действительно присутствуют.
+
+```sql
+SELECT 
+	-- Идентификатор объекта
+	s.object_id, 
+	-- Идентификатор статистики
+	s.stats_id, 
+	-- Имя статистики
+	s.[name] AS [StatisticName],
+	-- Имя таблицы
+	o.[name] AS [TableName],
+	-- Дата создания таблицы
+	o.create_date AS [TableCreated],
+	-- Дата изменения таблицы
+	o.modify_date AS [TableModified]
+FROM sys.stats AS s
+	JOIN sys.objects AS o
+	ON s.object_id = o.object_id
+WHERE s.auto_created = 1
+	AND o.is_ms_shipped = 0
+	AND EXISTS(select *	from [sys].[dm_db_stats_properties] (s.object_id, s.stats_id))
+```
+
+Запрос необходимо выполнять в контексте базы данных, для которой понадобилась проверка.
 
 ### Очищаем кэш
 

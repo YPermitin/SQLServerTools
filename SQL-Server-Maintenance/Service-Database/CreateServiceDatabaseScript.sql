@@ -160,12 +160,12 @@ CREATE TABLE [dbo].[AlwaysOnReplicaMissingStats](
 ) ON [PRIMARY]
 GO
 
-CREATE UNIQUE CLUSTERED INDEX [UK_AlwaysOnReplicaMissingStats_CreatedDate_DatabaseName_TableName] ON [dbo].[AlwaysOnReplicaMissingStats]
+CREATE CLUSTERED INDEX [UK_AlwaysOnReplicaMissingStats_CreatedDate_DatabaseName_TableName] ON [dbo].[AlwaysOnReplicaMissingStats]
 (
 	[CreatedDate] ASC,
 	[DatabaseName] ASC,
 	[TableName] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 CREATE FUNCTION [dbo].[fn_ResumableIndexMaintenanceAvailiable]()
