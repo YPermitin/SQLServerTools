@@ -32,5 +32,5 @@ FROM sys.dm_db_task_space_usage dmv_tsu
     INNER JOIN sys.dm_exec_sessions dmv_es
     ON (dmv_tsu.session_id = dmv_es.session_id)
 CROSS APPLY sys.dm_exec_sql_text(dmv_er.sql_handle) st
-WHERE (dmv_tsu.internal_objects_alloc_page_count + dmv_tsu.user_objects_alloc_page_count) > 0
+WHERE (dmv_tsu.internal_objects_alloc_page_count + dmv_tsu.user_objects_alloc_page_count) > 0 and dmv_tsu.session_id != @@SPID
 ORDER BY (dmv_tsu.user_objects_alloc_page_count - dmv_tsu.user_objects_dealloc_page_count) + (dmv_tsu.internal_objects_alloc_page_count - dmv_tsu.internal_objects_dealloc_page_count) DESC
