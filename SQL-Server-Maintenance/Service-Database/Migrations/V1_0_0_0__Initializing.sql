@@ -1,11 +1,3 @@
-/*
-Скрипт для создания служебной базы данных для управления обслуживанием и мониторингом.
-*/
-
--- По умолчанию служебную базу называем "SQLServerMaintenance"
-USE [SQLServerMaintenance]
-GO
-
 CREATE TABLE [dbo].[MaintenanceActionsLog](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Period] [datetime2](0) NOT NULL,
@@ -44,7 +36,7 @@ SELECT
 		THEN 1
 		ELSE 0
 	  END) AS "Обслужено индексов"      
-  FROM [dbo].[MaintenanceActionsLog]
+  FROM [SQLServerMaintenance].[dbo].[MaintenanceActionsLog]
   GROUP BY CAST([RunDate] AS DATE)
 GO
 
