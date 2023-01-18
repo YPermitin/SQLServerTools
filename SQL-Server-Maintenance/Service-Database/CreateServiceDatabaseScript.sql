@@ -21,11 +21,16 @@ CREATE TABLE [dbo].[MaintenanceActionsLog](
 	[IndexFragmentation] [float] NOT NULL,
 	[RowModCtr] [bigint] NOT NULL,
 	[SQLCommand] [nvarchar](max) NOT NULL,
+	[TransactionLogUsageBeforeMB] [bigint] NOT NULL,
+	[TransactionLogUsageAfterMB] [bigint] NULL
  CONSTRAINT [PK__Maintena__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[MaintenanceActionsLog] ADD  CONSTRAINT [DF_MaintenanceActionsLog_TransactionLogUsageBeforeMB]  DEFAULT ((0)) FOR [TransactionLogUsageBeforeMB]
 GO
 
 CREATE VIEW [dbo].[v_CommonStatsByDay]
@@ -229,7 +234,23 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	DECLARE @currentTransactionLogSizeMB int;
 	DECLARE @IdentityOutput TABLE ( Id bigint )
+
+	-- Информация о размере лога транзакций
+    DECLARE @tranLogInfo TABLE
+    (
+        servername varchar(250) not null default @@servername,
+        dbname varchar(250),
+        logsize real,
+        logspace real,
+        stat int
+    ) 
+	-- Проверка процента занятого места в логе транзакций
+    INSERT INTO @tranLogInfo (dbname,logsize,logspace,stat) exec('dbcc sqlperf(logspace)')
+    SELECT
+        @currentTransactionLogSizeMB = logsize * (logspace / 100)
+    FROM @tranLogInfo WHERE dbname = @databaseName
 
 	SET @TableName = REPLACE(@TableName, '[', '')
 	SET @TableName = REPLACE(@TableName, ']', '')
@@ -257,6 +278,8 @@ BEGIN
 		,[IndexFragmentation]
 		,[RowModCtr]
 		,[SQLCommand]
+		,[TransactionLogUsageBeforeMB]
+		,[TransactionLogUsageAfterMB]
 	)
 	OUTPUT inserted.Id into @IdentityOutput
 	VALUES
@@ -274,6 +297,8 @@ BEGIN
 		,@IndexFragmentation
 		,@RowModCtr
 		,@SQLCommand
+		,@currentTransactionLogSizeMB
+		,NULL
 	)
 
 	SET @MaintenanceActionLogId = (SELECT MAX(Id) FROM @IdentityOutput)
@@ -1426,9 +1451,32 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	DECLARE @databaseName sysname;
+	SELECT
+		@databaseName = [DatabaseName]
+	FROM [dbo].[MaintenanceActionsLog]
+	WHERE [Id] = @MaintenanceActionLogId
+
+	DECLARE @currentTransactionLogSizeMB int;
+	-- Информация о размере лога транзакций
+    DECLARE @tranLogInfo TABLE
+    (
+        servername varchar(250) not null default @@servername,
+        dbname varchar(250),
+        logsize real,
+        logspace real,
+        stat int
+    ) 
+	-- Проверка процента занятого места в логе транзакций
+    INSERT INTO @tranLogInfo (dbname,logsize,logspace,stat) exec('dbcc sqlperf(logspace)')
+    SELECT
+        @currentTransactionLogSizeMB = logsize * (logspace / 100)
+    FROM @tranLogInfo WHERE dbname = @databaseName
+
 	UPDATE [dbo].[MaintenanceActionsLog]
 	SET FinishDate = @FinishDate, 
-		Comment = @Comment
+		Comment = @Comment,
+		TransactionLogUsageAfterMB = @currentTransactionLogSizeMB
 	WHERE Id = @MaintenanceActionLogId
 	RETURN 0
 END

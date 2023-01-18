@@ -100,6 +100,7 @@ V<ВерсияМиграции>__<ИмяМиграции>.sql
 - Обслуживание индексов
 - Обслуживание  статистик
 - Сбор информации о размерах таблиц баз данных на сервере
+- Служебные действия по настройке и исправлению некоторых проблем
 
 Кроме этого, все операции обслуживания логируются, что позволяет диагностировать их работу, находить узкие места и делать более гибкие настройки обслуживания.
 
@@ -411,13 +412,13 @@ EXECUTE [SQLServerMaintenance].[dbo].[sp_IndexMaintenance]
 
 Лог операций обслуживания индексов хранится в таблице "MaintenanceActionsLog" и имеет примерно такой вид.
 
-| Id | Period           | TableName     | IndexName        | Operation     | RunDate          | StartDate        | FinishDate       | DatabaseName | UseOnlineRebuild | Comment | IndexFragmentation | RowModCtr | SQLCommand                                                                            |
-| -- | ---------------- | ------------- | ---------------- | ------------- | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | ------- | ------------------ | --------- | ------------------------------------------------------------------------------------- |
-| 1  | 03.01.2022 11:36 | \_InfoRg931551 | \_InfoRg931551\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 99                 | 0         | ALTER INDEX \[\_InfoRg931551\_1\] ON \[dbo\].\[\_InfoRg31551\] REBUILD WITH (MAXDOP=8) |
-| 2  | 03.01.2022 11:36 | \_InfoRg931551 | \_InfoRg931551\_2 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 90                 | 0         | ALTER INDEX \[\_InfoRg931551\_2\] ON \[dbo\].\[\_InfoRg31551\] REBUILD WITH (MAXDOP=8) |
-| 3  | 03.01.2022 11:36 | \_InfoRg929031 | \_InfoRg929031\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 89                 | 0         | ALTER INDEX \[\_InfoRg929031\_1\] ON \[dbo\].\[\_InfoRg29031\] REBUILD WITH (MAXDOP=8) |
-| 4  | 03.01.2022 11:36 | \_InfoRg929031 | \_InfoRg929031\_2 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 84                 | 0         | ALTER INDEX \[\_InfoRg929031\_2\] ON \[dbo\].\[\_InfoRg29031\] REBUILD WITH (MAXDOP=8) |
-| 5  | 03.01.2022 11:36 | \_InfoRg929073 | \_InfoRg929073\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 82                 | 0         | ALTER INDEX \[\_InfoRg929073\_1\] ON \[dbo\].\[\_InfoRg929073\] REBUILD WITH (MAXDOP=8) |
+| Id | Period           | TableName     | IndexName        | Operation     | RunDate          | StartDate        | FinishDate       | DatabaseName | UseOnlineRebuild | Comment | IndexFragmentation | RowModCtr | SQLCommand | TransactionLogUsageBeforeMB | TransactionLogUsageAfterMB | 
+| -- | ---------------- | ------------- | ---------------- | ------------- | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | ------- | ------------------ | --------- | ------------------------------------------------------------------------------------- | --- | --- |
+| 1  | 03.01.2022 11:36 | \_InfoRg931551 | \_InfoRg931551\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 99                 | 0         | ALTER INDEX \[\_InfoRg931551\_1\] ON \[dbo\].\[\_InfoRg31551\] REBUILD WITH (MAXDOP=8) | 10 | 230 |
+| 2  | 03.01.2022 11:36 | \_InfoRg931551 | \_InfoRg931551\_2 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 90                 | 0         | ALTER INDEX \[\_InfoRg931551\_2\] ON \[dbo\].\[\_InfoRg31551\] REBUILD WITH (MAXDOP=8) | 230 | 340 |
+| 3  | 03.01.2022 11:36 | \_InfoRg929031 | \_InfoRg929031\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 89                 | 0         | ALTER INDEX \[\_InfoRg929031\_1\] ON \[dbo\].\[\_InfoRg29031\] REBUILD WITH (MAXDOP=8) | 340 | 350 |
+| 4  | 03.01.2022 11:36 | \_InfoRg929031 | \_InfoRg929031\_2 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 84                 | 0         | ALTER INDEX \[\_InfoRg929031\_2\] ON \[dbo\].\[\_InfoRg29031\] REBUILD WITH (MAXDOP=8) | 350 | 600 |
+| 5  | 03.01.2022 11:36 | \_InfoRg929073 | \_InfoRg929073\_1 | REBUILD INDEX | 03.01.2022 11:36 | 03.01.2022 11:36 | 03.01.2022 11:36 | SomeDatabase     | 0                |         | 82                 | 0         | ALTER INDEX \[\_InfoRg929073\_1\] ON \[dbo\].\[\_InfoRg929073\] REBUILD WITH (MAXDOP=8) | 600 | 9399 |
 
 Лог содержит информацию:
 
@@ -434,6 +435,7 @@ EXECUTE [SQLServerMaintenance].[dbo].[sp_IndexMaintenance]
 - Процент фрагментации индекса перед обслуживанием (IndexFragmentation)
 - Количество измененных строк до обслуживания индекса (RowModCtr)
 - SQL-команда обслуживания индекса (SQLCommand)
+ы
 
 Лог позволяет определить эффективность обслуживания статистики и предпринять различные меры по ее актуализации.
 
@@ -505,13 +507,13 @@ GO
 
 Лог операций обслуживания статистики хранится в таблице "MaintenanceActionsLog" и имеет примерно такой вид.
 
-|   | Id | Period           | TableName                     | IndexName                                          | Operation         | RunDate          | StartDate        | FinishDate       | DatabaseName | UseOnlineRebuild | Comment | IndexFragmentation | RowModCtr | SQLCommand                                                                                                         |
-| - | -- | ---------------- | ----------------------------- | -------------------------------------------------- | ----------------- | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | ------- | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| 1 | 1  | 03.01.2022 10:48 | service\_broker\_map          | I\_CLUST                                           | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | tempdb       | 0                |         | 0                  | 129       | UPDATE STATISTICS \[sys\].\[service\_broker\_map\] \[I\_CLUST\]                                                    |
-| 2 | 2  | 03.01.2022 10:48 | service\_broker\_map          | I\_SECONDARY                                       | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | tempdb       | 0                |         | 0                  | 129       | UPDATE STATISTICS \[sys\].\[service\_broker\_map\] \[I\_SECONDARY\]                                                |
-| 3 | 3  | 03.01.2022 10:48 | syscachedcredentials          | PK\_\_syscache\_\_F6D56B560A8C29D8                 | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 10638     | UPDATE STATISTICS \[dbo\].\[syscachedcredentials\] \[PK\_\_syscache\_\_F6D56B560A8C29D8\]                          |
-| 4 | 4  | 03.01.2022 10:48 | syscachedcredentials          | \_WA\_Sys\_00000004\_01142BA1                      | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 393       | UPDATE STATISTICS \[dbo\].\[syscachedcredentials\] \[\_WA\_Sys\_00000004\_01142BA1\]                               |
-| 5 | 5  | 03.01.2022 10:48 | syscollector\_blobs\_internal | PK\_syscollector\_blobs\_internal\_paremeter\_name | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 1         | UPDATE STATISTICS \[dbo\].\[syscollector\_blobs\_internal\] \[PK\_syscollector\_blobs\_internal\_paremeter\_name\] |
+|   | Id | Period           | TableName                     | IndexName                                          | Operation         | RunDate          | StartDate        | FinishDate       | DatabaseName | UseOnlineRebuild | Comment | IndexFragmentation | RowModCtr | SQLCommand | TransactionLogUsageBeforeMB | TransactionLogUsageAfterMB | 
+| - | -- | ---------------- | ----------------------------- | -------------------------------------------------- | ----------------- | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | ------- | ------------------ | --------- | --- | --- | --- |
+| 1 | 1  | 03.01.2022 10:48 | service\_broker\_map          | I\_CLUST                                           | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | tempdb       | 0                |         | 0                  | 129       | UPDATE STATISTICS \[sys\].\[service\_broker\_map\] \[I\_CLUST\]                                                    | 1 | 2 |
+| 2 | 2  | 03.01.2022 10:48 | service\_broker\_map          | I\_SECONDARY                                       | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | tempdb       | 0                |         | 0                  | 129       | UPDATE STATISTICS \[sys\].\[service\_broker\_map\] \[I\_SECONDARY\]                                                | 2 | 4 |
+| 3 | 3  | 03.01.2022 10:48 | syscachedcredentials          | PK\_\_syscache\_\_F6D56B560A8C29D8                 | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 10638     | UPDATE STATISTICS \[dbo\].\[syscachedcredentials\] \[PK\_\_syscache\_\_F6D56B560A8C29D8\]                          | 4 | 6 |
+| 4 | 4  | 03.01.2022 10:48 | syscachedcredentials          | \_WA\_Sys\_00000004\_01142BA1                      | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 393       | UPDATE STATISTICS \[dbo\].\[syscachedcredentials\] \[\_WA\_Sys\_00000004\_01142BA1\]                               | 6 | 9 |
+| 5 | 5  | 03.01.2022 10:48 | syscollector\_blobs\_internal | PK\_syscollector\_blobs\_internal\_paremeter\_name | UPDATE STATISTICS | 03.01.2022 10:48 | 03.01.2022 10:48 | 03.01.2022 10:48 | msdb         | 0                |         | 0                  | 1         | UPDATE STATISTICS \[dbo\].\[syscollector\_blobs\_internal\] \[PK\_syscollector\_blobs\_internal\_paremeter\_name\] | 9 | 10 |
 
 Лог содержит информацию:
 
@@ -526,6 +528,8 @@ GO
 - Произвольный комментарий, обычно заполняется при ошибках (Comment)
 - Количество измененных строк до обслуживания статистики (RowModCtr)
 - SQL-команда обслуживания объекта статистики (SQLCommand)
+- Размер лога транзакций до начала операции в МБ (TransactionLogUsageBeforeMB)
+- Размер лога транзакций после завершения операции в МБ (TransactionLogUsageAfterMB)
 
 Некоторые другие поля в логе обслуживания относятся к индексам и для обслуживания статистики не заполняются.
 
