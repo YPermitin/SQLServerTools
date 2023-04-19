@@ -22,19 +22,6 @@
 | SQLServerMonitoring | SQLServerMonitoring_log | F:\SQLLOGS\SQLServerMonitoringLog.ldf     | F:\  | 1000000         | 1000      | 2097152      | 1              | 999                |
 */
 
-IF OBJECT_ID('tempdb..#tranLogInfo') IS NOT NULL
-	DROP TABLE #tranLogInfo;
-CREATE TABLE #tranLogInfo
-(
-	servername varchar(255) not null default @@servername,
-	dbname varchar(255),
-	logsize real,
-	logspace real,
-	stat int
-);
-TRUNCATE TABLE #tranLogInfo;
-INSERT INTO #tranLogInfo (dbname,logsize,logspace,stat) exec('dbcc sqlperf(logspace)');
-
 IF OBJECT_ID('tempdb..#logFileInfoByDatabases') IS NOT NULL
 	DROP TABLE #logFileInfoByDatabases;
 CREATE TABLE #logFileInfoByDatabases
@@ -80,7 +67,6 @@ SELECT
 	size/128.0 - CAST(FILEPROPERTY(f.[name],''SpaceUsed'') AS INT)/128.0 AS [LogFileFreeSpaceMB]
 FROM sys.master_files AS f CROSS APPLY 
   sys.dm_os_volume_stats(f.database_id, f.file_id)
-  LEFT JOIN #tranLogInfo tli ON DB_nAME(f.database_id) = tli.dbname
 WHERE [type_desc] = ''LOG''
 	and f.database_id = DB_ID();';
 
