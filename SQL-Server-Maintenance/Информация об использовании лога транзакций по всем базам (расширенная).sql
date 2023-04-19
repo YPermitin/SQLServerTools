@@ -80,7 +80,5 @@ SELECT
 	*
 FROM #logFileInfoByDatabases
 
-IF OBJECT_ID('tempdb..#tranLogInfo') IS NOT NULL
-	DROP TABLE #tranLogInfo;
 IF OBJECT_ID('tempdb..#logFileInfoByDatabases') IS NOT NULL
 	DROP TABLE #logFileInfoByDatabases;
