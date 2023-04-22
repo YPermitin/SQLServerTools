@@ -38,6 +38,7 @@
 | 26 | [Replication-And-High-Availability](SQL-Server-Replication-And-High-Availability) | Информация о механизмах репликации данных, высокой доступности и отказоустойчивости. |
 | 27 | [Track-Data-Changes](SQL-Server-Track-Data-Changes) | Механизмы отслеживания изменения данных. |
 | 28 | [Security](SQL-Server-Security) | Безопасность, управление доступом и связанные темы. |
+| 29 | [SQLCLR](SQL-Server-SQLCLR) | Материалы по созданию расширений для SQL Server на базе SQLCLR. |
 
 ## Полезные ссылки
 
