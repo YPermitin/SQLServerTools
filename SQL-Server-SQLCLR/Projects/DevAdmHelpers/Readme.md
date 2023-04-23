@@ -14,23 +14,23 @@
 
 * **GetSystemInfo** - получение системной информации о текущем контексте процесса SQL Server. Пример вывода:
 
-| Name         | Value           | Description                                                        |   |   |
-|--------------|-----------------|--------------------------------------------------------------------|---|---|
-| VersionCLR   | 4.0.30319.42000 | Описание версии CLR                                                |   |   |
-| OSUserName   | ypermitin       | Имя пользователя операционной системы, от которого запущен процесс |   |   |
-| OSDomainName | YY              | Имя сетевого домена, связанное с текущим пользователем             |   |   |
-| MachineName  | SRV-SQL-1       | Имя NetBIOS данного компьютера                                     |   |   |
+| Name         | Value           | Description                                                        |
+|--------------|-----------------|--------------------------------------------------------------------|
+| VersionCLR   | 4.0.30319.42000 | Описание версии CLR                                                |
+| OSUserName   | ypermitin       | Имя пользователя операционной системы, от которого запущен процесс |
+| OSDomainName | YY              | Имя сетевого домена, связанное с текущим пользователем             |
+| MachineName  | SRV-SQL-1       | Имя NetBIOS данного компьютера                                     |
 
 * **GetEnvironmentVariables** - список переменных окружения с их значениями, которые доступны процессу SQL Server. Пример вывода:
 
-| Name                            | Value                                                                                                                                                                                                                                           |   |   |   |
-|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|---|---|
-| COMPUTERNAME                    | SRV-SQL-1                                                                                                                                                                                                                                       |   |   |   |
-| POWERSHELL_DISTRIBUTION_CHANNEL | MSI:Windows Server 2019 Standard                                                                                                                                                                                                                |   |   |   |
-| PUBLIC                          | C:\Users\Public                                                                                                                                                                                                                                 |   |   |   |
-| LOCALAPPDATA                    | C:\Users\ypermitin.YY\AppData\Local                                                                                                                                                                                                             |   |   |   |
-| PSModulePath                    | %ProgramFiles%\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;C:\Program Files (x86)\Microsoft SQL Server\150\Tools\PowerShell\Modules\;C:\Program Files (x86)\Microsoft SQL Server\110\Tools\PowerShell\Modules\ |   |   |   |
-| PROCESSOR_ARCHITECTURE          | AMD64                                                                                                                                                                                                                                           |   |   |   |
+| Name                            | Value                                                                                                                                                                                                                                           |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| COMPUTERNAME                    | SRV-SQL-1                                                                                                                                                                                                                                       |
+| POWERSHELL_DISTRIBUTION_CHANNEL | MSI:Windows Server 2019 Standard                                                                                                                                                                                                                |
+| PUBLIC                          | C:\Users\Public                                                                                                                                                                                                                                 |
+| LOCALAPPDATA                    | C:\Users\ypermitin.YY\AppData\Local                                                                                                                                                                                                             |
+| PSModulePath                    | %ProgramFiles%\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;C:\Program Files (x86)\Microsoft SQL Server\150\Tools\PowerShell\Modules\;C:\Program Files (x86)\Microsoft SQL Server\110\Tools\PowerShell\Modules\ |
+| PROCESSOR_ARCHITECTURE          | AMD64                                                                                                                                                                                                                                           |
 
 ## Окружение для разработки
 

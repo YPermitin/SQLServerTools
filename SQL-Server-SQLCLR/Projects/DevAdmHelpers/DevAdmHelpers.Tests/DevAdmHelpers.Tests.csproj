@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DevAdmHelpers.SQLCLR\DevAdmHelpers.csproj" />
+    <ProjectReference Include="..\DevAdmHelpers\DevAdmHelpers.csproj" />
   </ItemGroup>
 
 </Project>
