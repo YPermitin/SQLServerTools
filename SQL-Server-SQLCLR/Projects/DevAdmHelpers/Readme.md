@@ -2,6 +2,10 @@
 
 Расширение SQLCLR для SQL Server с различными функциями для разработчиков и администраторов.
 
+## Собранное решение
+
+Собранную DLL для установки расширения SQLCLR можно скачать в разделе [релизы](https://github.com/YPermitin/SQLServerTools/releases).
+
 ## Обратная связь и новости
 
 Вопросы, предложения и любую другую информацию [отправляйте на электронную почту](mailto:i.need.ypermitin@yandex.ru).
@@ -60,10 +64,15 @@
 1. Собрать проект **DevAdmHelpers** в режиме **Release**.
 2. Полученную DLL **DevAdmHelpers.dll** скопировать на сервер, где установлен экземпляр SQL Server. Пусть для примера путь к DLL на сервере будет **"C:\Share\SQLCLR\DevAdmHelpers.dll"**.
 3. Выбрать базу для установки. Например, пусть она называется **SQLServerMaintenance**.
-4. Для упрощения настройки опустим некоторые аспекты безопасности и разрешим установку неподписанных расширений.
+
+4. [Включим интеграцию с CLR](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/clr-integration-enabling?view=sql-server-ver16). Для упрощения настройки опустим некоторые аспекты безопасности и разрешим установку неподписанных расширений.
 
 ```sql
+EXEC sp_configure 'clr enabled', 1;  
+RECONFIGURE;  
+GO  
 ALTER DATABASE SQLServerMaintenance SET TRUSTWORTHY ON;
+GO
 ```
 
 Также разрешим текущему пользователю доступ к внешним ресурсам. Например, это пользователь **YY\ypermitin**.
