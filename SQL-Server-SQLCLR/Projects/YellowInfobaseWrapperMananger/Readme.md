@@ -1,0 +1,3 @@
+# YellowInfobaseWrapperMananger
+
+В разработке...
