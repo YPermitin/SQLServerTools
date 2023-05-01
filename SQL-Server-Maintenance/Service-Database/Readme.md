@@ -612,7 +612,24 @@ ALTER INDEX [IndexName] ON [dbo].[TableName] SET (ALLOW_PAGE_LOCKS = OFF);
 
 Для проверки работы механизма отсложенных команд обслуживания можно смотреть ту же таблицу логов, что и для остальных операций обслуживания - **MaintenanceActionsLog**. В ней для подобных операций в колонке **Operation** будет содержаться значение вида **MAINTENANCE ACTION TO RUN (REORGANIZE INDEX)**, а в колонке **SQLCommand** можно увидеть исходную команду, которая была выполнена.
 
-Вообще отключение возможности блокировок на уровне страниц является точечным решением и не применяется повсеместно, т.к. ведет к увеличению потребления памяти СУБД и некоторым другим эффектам.
+Вообще отключение возможности блокировок на уровне страниц является точечным решением и не применяется повсеместно, т.к. ведет к увеличению потребления памяти СУБД и некоторым другим эффектам. Отключение блокировок на уровне страниц решение часто спорное, если используется для всей базы данных. Вот дополнительная информация по этой теме:
+
+* [Risk of disabling page locking](https://dba.stackexchange.com/questions/72369/risk-of-disabling-page-locking)
+* [Difference Between Row Level and Page Level Locking and Consequences](https://dba.stackexchange.com/questions/6512/difference-between-row-level-and-page-level-locking-and-consequences)
+* [How to force the use of row locks?](https://dba.stackexchange.com/questions/29293/how-to-force-the-use-of-row-locks)
+* [Is it possible to force row level locking in SQL Server?](https://stackoverflow.com/questions/3114826/is-it-possible-to-force-row-level-locking-in-sql-server)
+* [ROW_LOCKS & PAGE_LOCKS](https://social.msdn.microsoft.com/Forums/sqlserver/en-US/1b74e212-6c70-4db6-8d1a-23188fa4ef27/rowlocks-amp-pagelocks?forum=transactsql)
+* [Resolve SQL Server Database Index Reorganization Page Level Locking Problem](https://www.mssqltips.com/sqlservertip/4247/resolve-sql-server-database-index-reorganization-page-level-locking-problem/)
+* [ALLOW_PAGE_LOCKS : to use or not to use](https://www.sqlservercentral.com/forums/topic/allow_page_locks-to-use-or-not-to-use)
+* [What is the impact of temporarily setting ALLOW_PAGE_LOCKS ON](https://dba.stackexchange.com/questions/135934/what-is-the-impact-of-temporarily-setting-allow-page-locks-on)
+
+Принимая решение об отключении блокировок на уровне страниц для объекта нужно это обосноваь конкретной необходимостью и не принимать в качестве универсального решения. По ссылкам Выше можно найти более подробную информацию, а я лишь процитирую [Remus Rusanu]() и дам [ссылку на ответ]:
+
+```
+I would never turn this OFF on my database. The solution is always to properly design the schema and the queries so that scans (which are the culprits for escalation) don't occur to start with.
+```
+
+Думайте, что делаете. А когда делаете - думайте еще!
 
 #### Исправление системного кэша объектов для реплик AlwaysOn
 
