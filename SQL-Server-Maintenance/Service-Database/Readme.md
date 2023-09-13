@@ -790,7 +790,7 @@ EXECUTE [dbo].[sp_ClearFiles]
 
 ```sql
 DECLARE @cutoffDate datetime = DATEADD(week, -4, GETDATE());
-EXECUTE [dbo].[sp_ClearFiles] 
+EXECUTE [SQLServerMaintenance].[dbo].[sp_ClearFiles] 
   -- Каталог для очистки. Обязательный параметр.
    @folderPath = 'C:\Backup'
   -- Расширение файлов для удаления. Обязательный параметр.
