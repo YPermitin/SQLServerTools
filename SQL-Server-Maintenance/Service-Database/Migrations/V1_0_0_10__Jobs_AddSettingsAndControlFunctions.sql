@@ -563,6 +563,14 @@ BEGIN
 			ON sja.job_id = sj.job_id
 		INNER JOIN [dbo].[JobTimeouts] jtime
 			ON jtime.JobName = sj.[name]
+		INNER JOIN (
+			SELECT
+				[job_id],
+				MAX([session_id]) AS [session_id]
+			FROM [msdb].[dbo].[sysjobactivity]
+			GROUP BY [job_id]) ls
+			ON ls.job_id = sja.job_id
+				AND ls.session_id = sja.session_id
 	WHERE jtime.TimeoutSec > 0
 		AND DATEDIFF(SECOND, sja.[start_execution_date], GETDATE()) > jtime.TimeoutSec;
 	OPEN timeout_jobs_cursor;
