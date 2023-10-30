@@ -6,6 +6,25 @@
 USE [SQLServerMaintenance]
 GO
 
+CREATE FUNCTION [dbo].[fn_ResumableIndexMaintenanceAvailiable]()
+RETURNS bit
+AS
+BEGIN
+	DECLARE @checkResult bit;
+
+	SELECT
+	-- Возобновляемые операции обслуживания индексов доступны со SQL Server 2017
+	@checkResult = CASE
+						WHEN CAST(SUBSTRING(CONVERT(VARCHAR(128), SERVERPROPERTY('productversion')), 0,  3) AS INT) > 13
+						THEN 1
+						ELSE 0
+					END
+	
+	RETURN @checkResult
+
+END
+GO
+
 CREATE TABLE [dbo].[MaintenanceActionsLog](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Period] [datetime2](0) NOT NULL,
@@ -22,15 +41,12 @@ CREATE TABLE [dbo].[MaintenanceActionsLog](
 	[RowModCtr] [bigint] NOT NULL,
 	[SQLCommand] [nvarchar](max) NOT NULL,
 	[TransactionLogUsageBeforeMB] [bigint] NOT NULL,
-	[TransactionLogUsageAfterMB] [bigint] NULL
+	[TransactionLogUsageAfterMB] [bigint] NULL,
  CONSTRAINT [PK__Maintena__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
+) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-GO
-
-ALTER TABLE [dbo].[MaintenanceActionsLog] ADD  CONSTRAINT [DF_MaintenanceActionsLog_TransactionLogUsageBeforeMB]  DEFAULT ((0)) FOR [TransactionLogUsageBeforeMB]
 GO
 
 CREATE VIEW [dbo].[v_CommonStatsByDay]
@@ -51,6 +67,39 @@ SELECT
 	  END) AS "Обслужено индексов"      
   FROM [dbo].[MaintenanceActionsLog]
   GROUP BY CAST([RunDate] AS DATE)
+GO
+
+CREATE TABLE [dbo].[AlwaysOnReplicaMissingStats](
+	[DatabaseName] [nvarchar](255) NULL,
+	[TableName] [nvarchar](255) NULL,
+	[StatsName] [nvarchar](255) NULL,
+	[CreatedDate] [datetime] NULL
+) ON [PRIMARY]
+GO
+
+CREATE CLUSTERED INDEX [UK_AlwaysOnReplicaMissingStats_CreatedDate_DatabaseName_TableName] ON [dbo].[AlwaysOnReplicaMissingStats]
+(
+	[CreatedDate] ASC,
+	[DatabaseName] ASC,
+	[TableName] ASC
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[changelog](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[type] [tinyint] NULL,
+	[version] [varchar](50) NULL,
+	[description] [varchar](200) NOT NULL,
+	[name] [varchar](300) NOT NULL,
+	[checksum] [varchar](32) NULL,
+	[installed_by] [varchar](100) NOT NULL,
+	[installed_on] [datetime] NOT NULL,
+	[success] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[ConnectionsStatistic](
@@ -80,7 +129,7 @@ CREATE TABLE [dbo].[ConnectionsStatistic](
 (
 	[id] ASC,
 	[Period] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
+) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -99,7 +148,7 @@ CREATE TABLE [dbo].[DatabaseObjectsState](
  CONSTRAINT [PK__DatabaseObjectsState__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
+) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -122,7 +171,74 @@ CREATE UNIQUE CLUSTERED INDEX [UK_DatabasesTablesStatistic_Period_DatabaseName_T
 	[DatabaseName] ASC,
 	[SchemaName] ASC,
 	[TableName] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[JobTemplates](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UseSetting] [bit] NOT NULL,
+	[Enable] [bit] NOT NULL,
+	[ApplyTemplateQuery] [nvarchar](max) NULL,
+	[Name] [nvarchar](250) NOT NULL,
+	[Description] [nvarchar](512) NOT NULL,
+	[JobAction] [nvarchar](max) NOT NULL,
+	[ScheduleEnable] [bit] NOT NULL,
+	[ScheduleFreqType] [int] NOT NULL,
+	[ScheduleFreqInterval] [int] NOT NULL,
+	[ScheduleFreqSubdayType] [int] NOT NULL,
+	[ScheduleFreqSubdayInterval] [int] NOT NULL,
+	[ScheduleFreqRelativeInterval] [int] NOT NULL,
+	[ScheduleFreqRecurrenceFactor] [int] NOT NULL,
+	[ScheduleActiveStartDay] [int] NOT NULL,
+	[ScheduleActiveEndDay] [int] NOT NULL,
+	[ScheduleActiveStartTime] [int] NOT NULL,
+	[ScheduleActiveEndTime] [int] NOT NULL,
+	[VersionDate] [datetime] NOT NULL,
+	[TimeoutSec] [int] NOT NULL,
+ CONSTRAINT [PK_JobTemplates] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[JobTimeouts](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[JobName] [nvarchar](250) NULL,
+	[TimeoutSec] [int] NOT NULL,
+ CONSTRAINT [PK_JobTimeouts] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[LogTransactionControlSettings](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[DatabaseName] [nvarchar](250) NOT NULL,
+	[MinDiskFreeSpace] [int] NOT NULL,
+	[MaxLogUsagePercentThreshold] [int] NOT NULL,
+ CONSTRAINT [PK_LogTransactionControlSettings] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[MaintenanceActionsToRun](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[DatabaseName] [nvarchar](255) NOT NULL,
+	[Period] [datetime2](0) NOT NULL,
+	[Operation] [nvarchar](100) NOT NULL,
+	[SQLCommand] [nvarchar](max) NOT NULL,
+	[RunAttempts] [int] NOT NULL,
+	[Comment] [nvarchar](255) NULL,
+	[SourceConnectionId] [smallint] NOT NULL,
+ CONSTRAINT [PK_MaintenanceActionsToRun] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[MaintenanceIndexPriority](
@@ -135,8 +251,63 @@ CREATE TABLE [dbo].[MaintenanceIndexPriority](
  CONSTRAINT [PK_MaintenanceIndexPriority] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
 ) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET IDENTITY_INSERT [dbo].[changelog] ON 
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (1, 2, N'0', N'Empty schema found: dbo.', N'dbo', N'', N'sa', CAST(N'2023-10-30T13:53:18.753' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (2, 0, N'1.0.0.0', N'Initializing (71 ms)', N'V1_0_0_0__Initializing.sql', N'E29CBD2E2588AD0496EAD6531C63CC7F', N'sa', CAST(N'2023-10-30T13:53:18.853' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (3, 0, N'1.0.0.1', N'FixView CommonStatsByDay (7 ms)', N'V1_0_0_1__FixView_CommonStatsByDay.sql', N'E148A3049C07BE2692277AAF1FF1EEAC', N'sa', CAST(N'2023-10-30T13:53:18.867' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (4, 0, N'1.0.0.2', N'MaintainanceActionLog AddTranLogSizeInfo (22 ms)', N'V1_0_0_2__MaintainanceActionLog_AddTranLogSizeInfo.sql', N'A8B95D18EE751AC15A2DFF3601538ADE', N'sa', CAST(N'2023-10-30T13:53:18.890' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (5, 0, N'1.0.0.3', N'IndexMaintenance FixQueryRetriveIndexListForMaintenance (14 ms)', N'V1_0_0_3__IndexMaintenance_FixQueryRetriveIndexListForMaintenance.sql', N'55E540697C7AFFEDB68D8FC815091F61', N'sa', CAST(N'2023-10-30T13:53:18.907' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (6, 0, N'1.0.0.4', N'TransactionLogControl AddTableWithSettingsAndProc (23 ms)', N'V1_0_0_4__TransactionLogControl_AddTableWithSettingsAndProc.sql', N'655D9D4645CBA6710081AB9846140A0F', N'sa', CAST(N'2023-10-30T13:53:18.930' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (7, 0, N'1.0.0.5', N'IndexMaintenance AddSupportIndexReorganizeWithoutPageLocks copy (27 ms)', N'V1_0_0_5__IndexMaintenance_AddSupportIndexReorganizeWithoutPageLocks copy.sql', N'E22174E62CA8468BF1AA629DBDEA3CB3', N'sa', CAST(N'2023-10-30T13:53:18.960' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (8, 0, N'1.0.0.6', N'IndexMaintenance ImproveReorganizeIndexes (13 ms)', N'V1_0_0_6__IndexMaintenance_ImproveReorganizeIndexes.sql', N'D0D4BA4F63B28FDFDFA3847ACD5D4C29', N'sa', CAST(N'2023-10-30T13:53:18.973' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (9, 0, N'1.0.0.7', N'IndexMaintenance ImproveReorganizeIndexes v2 (13 ms)', N'V1_0_0_7__IndexMaintenance_ImproveReorganizeIndexes_v2.sql', N'36937240442EEBAB330DA107755213C1', N'sa', CAST(N'2023-10-30T13:53:18.990' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (10, 0, N'1.0.0.8', N'Backup AddProcBackupDatabase (9 ms)', N'V1_0_0_8__Backup_AddProcBackupDatabase.sql', N'8D060910FFC1AE7D67B7A6758F8DEE94', N'sa', CAST(N'2023-10-30T13:53:19.000' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (11, 0, N'1.0.0.9', N'Backup AddProcClearFiles (6 ms)', N'V1_0_0_9__Backup_AddProcClearFiles.sql', N'A8A4CA79BA41288175A164A32D606AD0', N'sa', CAST(N'2023-10-30T13:53:19.007' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (12, 0, N'1.0.0.10', N'Jobs AddSettingsAndControlFunctions (28 ms)', N'V1_0_0_10__Jobs_AddSettingsAndControlFunctions.sql', N'F324EE0D243F0DE84AD59E01172872E1', N'sa', CAST(N'2023-10-30T13:53:19.037' AS DateTime), 1)
+GO
+SET IDENTITY_INSERT [dbo].[changelog] OFF
+GO
+SET IDENTITY_INSERT [dbo].[JobTemplates] ON 
+GO
+
+INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (1, 1, 1, NULL, N'SQLServerMaintenance.ControlTransactionLogUsage', N'Контроль заполнения лога транзакций', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlTransactionLogUsage] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 0)
+GO
+INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (2, 1, 1, NULL, N'SQLServerMaintenance.ControlJobsExecutionTimeout', N'Контроль таймаутов выполнения заданий', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlJobsExecutionTimeout] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 0)
+GO
+INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (3, 1, 0, N'SELECT
+	[name] AS [DatabaseName]
+FROM sys.databases
+WHERE NOT [name] IN (''master'', ''msdb'', ''model'', ''tempdb'')', N'SQLServerMaintenance.FullMaintenance_{DatabaseName}', N'Полное обслуживание базы данных {DatabaseName}', N'<steps>
+	<step>
+		<name>Index Maintenance</name>
+		<script>
+EXECUTE [SQLServerMaintenance].[dbo].[sp_IndexMaintenance] 
+   @databaseName = ''{DatabaseName}''
+		</script>
+	</step>
+	<step>
+		<name>Statistic Maintenance</name>
+		<script>
+EXECUTE [SQLServerMaintenance].[dbo].[sp_StatisticMaintenance] 
+   @databaseName = ''{DatabaseName}''
+		</script>
+	</step>
+</steps>', 1, 4, 1, 1, 60, 0, 0, 20231021, 99991231, 200000, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 10800)
 GO
 
 CREATE NONCLUSTERED INDEX [UK_Table_Object_Period] ON [dbo].[DatabaseObjectsState]
@@ -145,7 +316,13 @@ CREATE NONCLUSTERED INDEX [UK_Table_Object_Period] ON [dbo].[DatabaseObjectsStat
 	[TableName] ASC,
 	[Object] ASC,
 	[Period] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_LogTransactionControlSettings_DatabaseName] ON [dbo].[LogTransactionControlSettings]
+(
+	[DatabaseName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 CREATE NONCLUSTERED INDEX [UK_RunDate_Table_Index_Period_Operation] ON [dbo].[MaintenanceActionsLog]
@@ -154,66 +331,17 @@ CREATE NONCLUSTERED INDEX [UK_RunDate_Table_Index_Period_Operation] ON [dbo].[Ma
 	[DatabaseName] ASC,
 	[TableName] ASC,
 	[IndexName] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90) ON [PRIMARY]
-GO
-
-CREATE TABLE [dbo].[AlwaysOnReplicaMissingStats](
-	[DatabaseName] [nvarchar](255) NULL,
-	[TableName] [nvarchar](255) NULL,
-	[StatsName] [nvarchar](255) NULL,
-	[CreatedDate] [datetime] NULL
 ) ON [PRIMARY]
 GO
-
-CREATE CLUSTERED INDEX [UK_AlwaysOnReplicaMissingStats_CreatedDate_DatabaseName_TableName] ON [dbo].[AlwaysOnReplicaMissingStats]
-(
-	[CreatedDate] ASC,
-	[DatabaseName] ASC,
-	[TableName] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+ALTER TABLE [dbo].[changelog] ADD  DEFAULT (getdate()) FOR [installed_on]
 GO
-
-CREATE FUNCTION [dbo].[fn_ResumableIndexMaintenanceAvailiable]()
-RETURNS bit
-AS
-BEGIN
-	DECLARE @checkResult bit;
-
-	SELECT
-	-- Возобновляемые операции обслуживания индексов доступны со SQL Server 2017
-	@checkResult = CASE
-						WHEN CAST(SUBSTRING(CONVERT(VARCHAR(128), SERVERPROPERTY('productversion')), 0,  3) AS INT) > 13
-						THEN 1
-						ELSE 0
-					END
-	
-	RETURN @checkResult
-
-END
+ALTER TABLE [dbo].[JobTemplates] ADD  CONSTRAINT [DF_JobTemplates_VersionDate]  DEFAULT (getdate()) FOR [VersionDate]
 GO
-
-CREATE PROCEDURE [dbo].[sp_AdvancedPrint]
-    @sql varchar(max)
-AS
-BEGIN
-    declare
-        @n int,
-        @i int = 0,
-        @s int = 0,
-        @l int;
-
-    set @n = ceiling(len(@sql) / 8000.0);
-
-    while @i < @n
-    begin
-        set @l = 8000 - charindex(char(13), reverse(substring(@sql, @s, 8000)));
-        print substring(@sql, @s, @l);
-        set @i = @i + 1;
-        set @s = @s + @l + 2;
-    end
-
-    return 0
-END
+ALTER TABLE [dbo].[LogTransactionControlSettings] ADD  CONSTRAINT [DF_LogTransactionControlSettings_MinLogUsagePercentThreshold]  DEFAULT ((90)) FOR [MaxLogUsagePercentThreshold]
+GO
+ALTER TABLE [dbo].[MaintenanceActionsLog] ADD  CONSTRAINT [DF_MaintenanceActionsLog_TransactionLogUsageBeforeMB]  DEFAULT ((0)) FOR [TransactionLogUsageBeforeMB]
+GO
+ALTER TABLE [dbo].[MaintenanceActionsToRun] ADD  CONSTRAINT [DF_MaintenanceActionsToRun_RunAttempts]  DEFAULT ((0)) FOR [RunAttempts]
 GO
 
 CREATE PROCEDURE [dbo].[sp_add_maintenance_action_log]
@@ -305,6 +433,1116 @@ BEGIN
 
 	RETURN 0
 END
+GO
+
+CREATE PROCEDURE [dbo].[sp_add_maintenance_action_to_run]
+	@DatabaseName sysname,
+	@Operation nvarchar(100),
+	@SQLCommand nvarchar(max),
+	@MaintenanceActionToRunId bigint OUTPUT
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @IdentityOutput TABLE ( Id bigint );
+	DECLARE @RunDate datetime2(0) = GetDate();
+
+	SET @DatabaseName = REPLACE(@DatabaseName, '[', '')
+	SET @DatabaseName = REPLACE(@DatabaseName, ']', '')
+
+	INSERT INTO [dbo].[MaintenanceActionsToRun]
+	(
+		[DatabaseName],
+		[Period],
+		[Operation],
+		[SQLCommand],
+		[SourceConnectionId]
+	)
+	OUTPUT inserted.Id into @IdentityOutput
+	VALUES
+	(
+		@DatabaseName,
+		@RunDate,
+		@Operation,
+		@SQLCommand,
+		@@SPID
+	)
+
+	SET @MaintenanceActionToRunId = (SELECT MAX(Id) FROM @IdentityOutput)
+
+	RETURN 0
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_AddOrUpdateJobTimeout]
+	@jobName nvarchar(250) NULL,
+	@timeoutSec int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @currentId int;
+
+	SELECT 
+		@currentId = [Id]
+	FROM [dbo].[JobTimeouts] jt
+	WHERE (
+		jt.JobName = @jobName
+		OR (
+			jt.JobName IS NULL AND @jobName IS NULL
+		)
+	)
+
+    IF(@currentId IS NOT NULL)
+	BEGIN
+		UPDATE [dbo].[JobTimeouts]
+		SET TimeoutSec = @timeoutSec
+		WHERE [Id] = @currentId;
+	END ELSE BEGIN
+		INSERT INTO [dbo].[JobTimeouts] (JobName, TimeoutSec)
+		VALUES (@jobName, @timeoutSec)
+	END
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[sp_AdvancedPrint]
+    @sql varchar(max)
+AS
+BEGIN
+    declare
+        @n int,
+        @i int = 0,
+        @s int = 0,
+        @l int;
+
+    set @n = ceiling(len(@sql) / 8000.0);
+
+    while @i < @n
+    begin
+        set @l = 8000 - charindex(char(13), reverse(substring(@sql, @s, 8000)));
+        print substring(@sql, @s, @l);
+        set @i = @i + 1;
+        set @s = @s + @l + 2;
+    end
+
+    return 0
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_apply_maintenance_action_to_run]
+	@databaseName sysname
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	BEGIN TRAN;
+
+	DECLARE 
+		@period datetime2(0),
+		@operation nvarchar(100),
+		@id int,
+		@sqlCommand nvarchar(max),
+		@fullSqlCommand nvarchar(max),
+		@sourceConnectionId smallint,
+		@operationFull nvarchar(max),
+		@RunDate datetime2(0) = GetDate(),
+		@StartDate datetime2(0),
+		@FinishDate datetime2(0),
+		@MaintenanceActionLogId bigint;
+
+	DECLARE commands_to_run_cursor CURSOR  
+	FOR SELECT
+		[Id], [Period], [Operation], [SQLCommand], [SourceConnectionId]
+	FROM [dbo].[MaintenanceActionsToRun] WITH (READPAST, UPDLOCK)
+	WHERE [DatabaseName] = @databaseName
+		AND [RunAttempts] < 3
+	ORDER BY [Period], [Id]
+	OPEN commands_to_run_cursor;
+
+	FETCH NEXT FROM commands_to_run_cursor INTO @id, @period, @operation, @sqlCommand, @sourceConnectionId;
+
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN
+		IF(EXISTS(
+			SELECT  *
+			FROM    sys.dm_exec_sessions es
+				LEFT OUTER JOIN sys.dm_exec_requests rs ON (es.session_id = rs.session_id)  
+				CROSS APPLY sys.dm_exec_sql_text(rs.sql_handle) AS sqltext
+			WHERE (
+					rs.command like '%ALTER INDEX%' 
+					or (rs.command like '%DBCC%' AND sqltext.text like '%ALTER%INDEX%')
+					or (rs.command like '%DBCC%' AND sqltext.text like '%EXECUTE%sp_IndexMaintenance%')
+				  )
+				and es.session_id = @sourceConnectionId))
+		BEGIN
+			FETCH NEXT FROM commands_to_run_cursor INTO @id, @period, @operation, @sqlCommand, @sourceConnectionId;
+			CONTINUE;
+		END
+						
+		SET @fullSqlCommand = CAST('USE [' as nvarchar(max)) + CAST(@databaseName  as nvarchar(max)) + CAST('];
+		' as nvarchar(max)) + CAST(@sqlCommand as nvarchar(max));
+		
+		UPDATE [dbo].[MaintenanceActionsToRun]
+		SET 
+			[RunAttempts] = [RunAttempts] + 1,
+			[SourceConnectionId] = @@SPID
+		WHERE [Id] = @id
+		
+		SET @StartDate = GetDate()
+		SET @operationFull = 'MAINTENANCE ACTION TO RUN (' + @Operation + ')'
+
+		DECLARE @msg nvarchar(500);
+        EXECUTE [dbo].[sp_add_maintenance_action_log]
+			''
+            ,''
+            ,@operationFull
+            ,@RunDate
+            ,@StartDate
+            ,null
+            ,@databaseName
+            ,0
+            ,''
+            ,0
+            ,0
+            ,@sqlCommand
+            ,@MaintenanceActionLogId OUTPUT;
+
+		BEGIN TRY
+			EXEC sp_executesql @fullSqlCommand;
+
+			execute [dbo].[sp_remove_maintenance_action_to_run]
+				@id
+
+			SET @msg = ''
+		END TRY
+		BEGIN CATCH
+			SET @msg = 'Error: '
+				+ CAST(Error_message() AS NVARCHAR(500)) + ', Code: ' 
+				+ CAST(Error_Number() AS NVARCHAR(500)) + ', Line: ' 
+				+ CAST(Error_Line() AS NVARCHAR(500))			
+			UPDATE [dbo].[MaintenanceActionsToRun]
+			SET [Comment] = @msg
+			WHERE [Id] = @id
+		END CATCH
+		
+		SET @FinishDate = GetDate()
+        EXECUTE [dbo].[sp_set_maintenance_action_log_finish_date]
+			@MaintenanceActionLogId,
+            @FinishDate,
+			@msg;   
+
+		FETCH NEXT FROM commands_to_run_cursor INTO @id, @period, @operation, @sqlCommand, @sourceConnectionId;
+	END
+	CLOSE commands_to_run_cursor;  
+	DEALLOCATE commands_to_run_cursor;
+
+	COMMIT TRAN;
+END
+
+GO
+
+CREATE PROCEDURE [dbo].[sp_BackupDatabase]
+	@databaseName sysname,
+	@backupDirectory nvarchar(max),
+	@backupType nvarchar(10) = 'FULL',	
+	@useSubdirectory bit = 1,
+	@showScriptOnly bit = 0,
+	@backupCompressionType nvarchar(10) = 'AUTO',	
+	@copyOnly bit = 0,
+	@checksum bit = 0,
+	@continiueOnError bit = 0,
+	@blockSize int = 0,
+	@maxTransferSize int = 0,
+	@bufferCount int = 0,
+	@verify bit = 0
+	
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE
+		@backupExtension nvarchar(5),
+		@fileName nvarchar(max),
+		@backupFileFullName nvarchar(max),
+		@useCompression bit,
+		@msg nvarchar(max),
+		@sql nvarchar(max);
+
+	IF DB_ID(@databaseName) IS NULL
+    BEGIN
+        SET @msg = 'Database ' + @databaseName + ' is not exists.';
+        THROW 51000, @msg, 1;
+        RETURN -1;
+    END
+
+	IF(NOT UPPER(@backupType) IN ('FULL', 'DIFF', 'TRN'))
+	BEGIN
+	    SET @msg = 'Backup type is incorrect. Valid values: FULL, DIFF, TRN.';
+        THROW 51000, @msg, 1;
+        RETURN -1;
+	END
+
+	IF(NOT UPPER(@backupCompressionType) IN ('AUTO', 'ENABLE', 'DISABLE'))
+	BEGIN
+	    SET @msg = 'Backup compression type is incorrect. Valid values: AUTO, ENABLE, DISABLE.';
+        THROW 51000, @msg, 1;
+        RETURN -1;
+	END  
+
+	SET @backupExtension = 
+		CASE 
+			WHEN @backupType = 'FULL' THEN 'bak'
+			WHEN @backupType = 'DIFF' THEN 'diff'
+			WHEN @backupType = 'TRN' THEN 'trn'
+		END
+
+	if(@backupCompressionType = 'AUTO')
+	BEGIN
+		SELECT @useCompression = CAST(value AS bit)
+		FROM sys.configurations   
+		WHERE name = 'backup compression default';
+	END ELSE IF(@backupCompressionType = 'ENABLE')
+	BEGIN
+		SET @useCompression = 1
+	END ELSE IF(@backupCompressionType = 'DISABLE') 
+	BEGIN
+		SET @useCompression = 0
+	END
+
+	SET @fileName = @databaseName + '_backup_' + FORMAT(sysdatetime(), 'yyyy_MM_dd_HHmmss_ffffff');
+
+	SET @backupFileFullName =
+		CASE WHEN SUBSTRING(@backupDirectory, LEN(@backupDirectory), 1) = '\' THEN SUBSTRING(@backupDirectory, 1, LEN(@backupDirectory) - 1) ELSE @backupDirectory END + 
+		'\' + 
+		CASE WHEN @useSubdirectory = 1 THEN @databaseName + '\' ELSE '' END;
+
+	if(@showScriptOnly = 0)
+	BEGIN
+		SET @sql = 'EXEC master.sys.xp_create_subdir N''' + @backupFileFullName + ''''
+		EXECUTE sp_executesql @sql
+	END
+
+	SET @backupFileFullName = @backupFileFullName + @fileName + '.' + @backupExtension;
+
+	SET @sql = 
+'BACKUP ' + CASE WHEN @backupType = 'TRN' THEN 'LOG' ELSE 'DATABASE' END + ' [' + @databaseName + ']
+TO DISK = N''' + @backupFileFullName + ''' WITH NOFORMAT,
+NOINIT,
+NAME = N''' + @fileName + ''',
+SKIP, REWIND, NOUNLOAD' +
+	CASE WHEN @backupType = 'DIFF' THEN ', DIFFERENTIAL' ELSE '' END + 
+	CASE WHEN @useCompression = 1 THEN ', COMPRESSION' ELSE '' END + 
+	CASE WHEN @copyOnly = 1 THEN ', COPY_ONLY' ELSE '' END +
+	CASE WHEN @checksum = 1 THEN ', CHECKSUM' ELSE '' END +
+	CASE WHEN @continiueOnError = 1 THEN ', CONTINUE_AFTER_ERROR' ELSE '' END +
+	CASE WHEN @blockSize > 0 THEN ', BLOCKSIZE = ' + CAST(@blockSize as nvarchar(max)) ELSE '' END +
+	CASE WHEN @maxTransferSize > 0 THEN ', MAXTRANSFERSIZE = ' + CAST(@maxTransferSize as nvarchar(max)) ELSE '' END +
+	CASE WHEN @bufferCount > 0 THEN ', BUFFERCOUNT = ' + CAST(@bufferCount as nvarchar(max)) ELSE '' END + ', STATS = 10;'
+
+	if(@verify = 1)
+	BEGIN
+		DECLARE @backupSetId as int;
+
+		SELECT @backupSetId = position from msdb..backupset 
+		WHERE [database_name] = @databaseName and backup_set_id = (
+			select max(backup_set_id) 
+			from msdb..backupset
+			where [database_name] = @databaseName
+		)
+
+		IF @backupSetId is null AND @showScriptOnly = 0
+		BEGIN
+			raiserror(N'Ошибка верификации. Сведения о резервном копировании для базы данных не найдены.', 16, 1) 
+		END
+
+		SET @sql = @sql + '
+
+RESTORE VERIFYONLY FROM  DISK = N''' + @backupFileFullName + ''' WITH  FILE = ' + CAST(@backupSetId AS nvarchar(max)) + ',  NOUNLOAD,  NOREWIND;'
+	END
+
+	if(@showScriptOnly = 1)
+	BEGIN
+		PRINT @sql
+	END ELSE
+	BEGIN
+		EXECUTE sp_executesql @sql
+	END
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_ClearFiles]
+	@folderPath nvarchar(max),
+	@fileType bit = 0,	
+	@fileExtension nvarchar(10) = null,
+	@cutoffDate datetime = null,
+	@cutoffDateDays int = null,
+	@includeSubfolders bit = 1,
+	@scriptOnly bit = 0	
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @msg nvarchar(max);
+
+	IF(@cutoffDate is not null AND @cutoffDateDays is not null)
+	BEGIN
+		SET @msg = 'You should setup only one parameter: @cutoffDate or @cutoffDateDays';
+        THROW 51000, @msg, 1;
+        RETURN -1;
+	END
+
+	IF(@cutoffDateDays IS NOT NULL)
+	BEGIN
+		SET @cutoffDate = DATEADD(day, -@cutoffDateDays, GETDATE())
+	END ELSE IF(@cutoffDate is null)
+	BEGIN
+		SET @cutoffDate = GETDATE()
+	END
+
+	DECLARE @sql nvarchar(max);
+	SET @sql = 'EXECUTE master.dbo.xp_delete_file ' + 
+		CAST(@fileType AS nvarchar(max)) + 
+		',N''' + @folderPath + '''' +
+		',N''' + @fileExtension + 
+		''',N''' + FORMAT(@cutoffDate, 'yyyy-MM-ddTHH:mm:ss') + ''',' + 
+		CAST(@includeSubfolders AS nvarchar(max))
+
+	IF(@scriptOnly = 1)
+	BEGIN
+		PRINT @sql
+	END ELSE
+	BEGIN
+		EXECUTE sp_executesql @sql
+	END	
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_ControlJobsExecutionTimeout]
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @AllConnections TABLE(
+		SPID INT,
+		Status VARCHAR(MAX),
+		LOGIN VARCHAR(MAX),
+		HostName VARCHAR(MAX),
+		BlkBy VARCHAR(MAX),
+		DBName VARCHAR(MAX),
+		Command VARCHAR(MAX),
+		CPUTime INT,
+		DiskIO INT,
+		LastBatch VARCHAR(MAX),
+		ProgramName VARCHAR(MAX),
+		SPID_1 INT,
+		REQUESTID INT
+	)
+	INSERT INTO @AllConnections EXEC sp_who2
+
+	DECLARE
+		@executionTimeSec int,
+		@timeoutSec int,
+		@SPID int,
+		@programName nvarchar(max);
+
+	DECLARE timeout_jobs_cursor CURSOR FOR 
+	SELECT 
+		DATEDIFF(SECOND, sja.[start_execution_date], GETDATE()) AS 'ExecutionDurationSec',
+		jtime.TimeoutSec,
+		SPID,
+		ProgramName
+	FROM @AllConnections c
+		INNER JOIN [msdb].[dbo].[sysjobs] sj
+			ON UPPER(c.ProgramName) LIKE '%Job 0x' + UPPER(CONVERT(VARCHAR(max), CAST(job_id AS varbinary(max)), 2)) + '%'
+		INNER JOIN [msdb].[dbo].[sysjobactivity] AS sja
+			ON sja.job_id = sj.job_id
+		INNER JOIN [dbo].[JobTimeouts] jtime
+			ON jtime.JobName = sj.[name]
+	WHERE jtime.TimeoutSec > 0
+		AND DATEDIFF(SECOND, sja.[start_execution_date], GETDATE()) > jtime.TimeoutSec;
+	OPEN timeout_jobs_cursor;
+	FETCH NEXT FROM timeout_jobs_cursor INTO @executionTimeSec, @timeoutSec, @SPID, @programName;
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN
+		DECLARE @msg nvarchar(max), @sql nvarchar(max);
+		SET @msg = 'Задание ''' + @programName + ''' завершено по таймауту. Соединение: ' + CAST(@SPID AS nvarchar(max)) + '. Время работы: ' + CAST(@executionTimeSec  AS nvarchar(max))+ '. Таймаут: ' + CAST(@timeoutSec AS nvarchar(max)) + '.';
+		PRINT @msg;
+
+		SET @sql = 'KILL ' + CAST(@SPID as nvarchar(max));
+		EXEC sp_executesql @sql;
+
+		FETCH NEXT FROM timeout_jobs_cursor INTO @executionTimeSec, @timeoutSec, @SPID, @programName;
+	END
+	CLOSE timeout_jobs_cursor;  
+	DEALLOCATE timeout_jobs_cursor;
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_ControlTransactionLogUsage]
+	@databaseNameFilter nvarchar(255) = null,
+	@showDiagnosticMessages bit = 0
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	IF OBJECT_ID('tempdb..#logFileInfoByDatabases') IS NOT NULL
+		DROP TABLE #logFileInfoByDatabases;
+	CREATE TABLE #logFileInfoByDatabases
+	(
+		DatabaseName varchar(255) not null,
+		LogFileName varchar(255),
+		LogFilePath varchar(max),
+		[Disk] varchar(25),
+		[DiskFreeSpaceMB] numeric(15,0),
+		[LogSizeMB] numeric(15,0),
+		[LogMaxSizeMB] numeric(15,0),
+		[LogFileCanGrow] bit,
+		[LogFileFreeSpaceMB] numeric(15,0)
+	);
+
+	DECLARE
+		@SqlStatement nvarchar(MAX)
+		,@CurrentDatabaseName sysname;
+	DECLARE DatabaseList CURSOR LOCAL FAST_FORWARD FOR
+		SELECT name FROM sys.databases;
+	OPEN DatabaseList;
+	WHILE 1 = 1
+	BEGIN
+		FETCH NEXT FROM DatabaseList INTO @CurrentDatabaseName;
+		IF @@FETCH_STATUS = -1 BREAK;
+		SET @SqlStatement = N'USE '
+			+ QUOTENAME(@CurrentDatabaseName)
+			+ CHAR(13)+ CHAR(10)
+			+ N'INSERT INTO #logFileInfoByDatabases
+	SELECT
+		DB_NAME(f.database_id) AS [Database],
+		f.[name] AS [LogFileName],
+		f.physical_name AS [LogFilePath],
+		volume_mount_point AS [Disk],
+		available_bytes/1048576 as [DiskFreeSpaceMB],
+		CAST(f.size AS bigint) * 8 / 1024 AS [LogSizeMB],
+		CAST(CASE WHEN f.max_size <= 0 THEN 268435456 ELSE f.max_size END AS bigint) * 8 / 1024 AS [LogMaxSizeMB],
+		CASE 
+			WHEN (CAST(f.size AS bigint) * 8 / 1024) = (CAST(CASE WHEN f.max_size = 0 THEN 268435456 ELSE f.max_size END AS bigint) * 8 / 1024)
+			THEN 0
+			ELSE 1
+		END AS [LogFileCanGrow],
+		size/128.0 - CAST(FILEPROPERTY(f.[name],''SpaceUsed'') AS INT)/128.0 AS [LogFileFreeSpaceMB]
+	FROM sys.master_files AS f CROSS APPLY 
+	  sys.dm_os_volume_stats(f.database_id, f.file_id)
+	WHERE [type_desc] = ''LOG''
+		and f.database_id = DB_ID();';
+
+		EXECUTE(@SqlStatement);
+	
+	END
+	CLOSE DatabaseList;
+	DEALLOCATE DatabaseList;
+
+	DECLARE @databaseName sysname,
+			@MinDiskFreeSpaceMB int,
+			@MaxLogUsagePercentThreshold int,
+			@currentTransactionLogSizeFreePercent int,
+			@currentTransactionLogSizeFreeMB int,
+			@logUsageBadStatus bit = 0,
+			@RunDate datetime = GETDATE(),
+			@comment nvarchar(255),
+			@message nvarchar(max);
+
+	DECLARE databasesUnderControl CURSOR  
+	FOR SELECT
+		[DatabaseName],[MinDiskFreeSpace],[MaxLogUsagePercentThreshold]
+	FROM [dbo].[LogTransactionControlSettings]
+	WHERE DatabaseName = @databaseNameFilter or @databaseNameFilter IS NULL;
+	OPEN databasesUnderControl;
+
+	FETCH NEXT FROM databasesUnderControl 
+	INTO @databaseName, @MinDiskFreeSpaceMB, @MaxLogUsagePercentThreshold;
+
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN
+		IF(@showDiagnosticMessages = 1)
+		BEGIN
+			SET @message = 'Запуск проверки лога транзакций для базы ' 
+				+ @databaseName 
+				+ '. Мин. свободное место на диске должно быть ' 
+				+ CAST(@MinDiskFreeSpaceMB AS nvarchar(max))
+				+ ' МБ. Макс. занятый % лога транзакций при этом '
+				+ CAST(@MaxLogUsagePercentThreshold AS nvarchar(max))
+				+ '%.'
+			PRINT @message
+
+			SELECT
+				[Disk],
+				[LogFilePath],
+				[LogFileFreeSpaceMB],
+				[DiskFreeSpaceMB],
+				100 - (LogFileFreeSpaceMB / (LogSizeMB / 100)) AS [LogFileUsedPercent],
+				100 - [TotalLogFileFreeMB] / ([TotalLogMaxSizeMB] / 100) AS [TotalLogFileUsedPercent]
+			FROM #logFileInfoByDatabases lf
+				LEFT JOIN (
+					SELECT
+						DatabaseName,
+						SUM(LogMaxSizeMB) AS [TotalLogMaxSizeMB],
+						SUM(LogMaxSizeMB - (LogSizeMB - LogFileFreeSpaceMB)) AS [TotalLogFileFreeMB]
+					FROM #logFileInfoByDatabases
+					GROUP BY DatabaseName
+				) totals ON lf.DatabaseName = totals.DatabaseName
+			WHERE lf.DatabaseName = @databaseName
+				AND LogFileCanGrow = 1
+				AND (
+					-- Место на диске меньше установленного порога, при этом файл лога заполнен более чем на указанный % в ограничениях
+					(100 - (LogFileFreeSpaceMB / (LogSizeMB / 100))) >= @MaxLogUsagePercentThreshold AND [DiskFreeSpaceMB] <= @MinDiskFreeSpaceMB				
+					OR
+					-- Лог транзакций заполнен более чем на указанный % от максимального размер лога (с учетом автоприроста)
+					(100 - [TotalLogFileFreeMB] / ([TotalLogMaxSizeMB] / 100)) >= @MaxLogUsagePercentThreshold
+				)
+		END
+
+		DECLARE
+			@logFileFreeSpaceMB numeric,
+			@diskFreeSpaceMB numeric,
+			@logFileUsedPercent numeric,
+			@diskName nvarchar(max),
+			@logFilePath nvarchar(max),
+			@totalLogFileUsedPercent numeric;
+
+		DECLARE checkLogFiles CURSOR FOR
+		SELECT
+			[Disk],
+			[LogFilePath],
+			[LogFileFreeSpaceMB],
+			[DiskFreeSpaceMB],
+			100 - (LogFileFreeSpaceMB / (LogSizeMB / 100)) AS [LogFileUsedPercent],
+			100 - [TotalLogFileFreeMB] / ([TotalLogMaxSizeMB] / 100) AS [TotalLogFileUsedPercent]
+		FROM #logFileInfoByDatabases lf
+			LEFT JOIN (
+				SELECT
+					DatabaseName,
+					SUM(LogMaxSizeMB) AS [TotalLogMaxSizeMB],
+					SUM(LogMaxSizeMB - (LogSizeMB - LogFileFreeSpaceMB)) AS [TotalLogFileFreeMB]
+				FROM #logFileInfoByDatabases
+				GROUP BY DatabaseName
+			) totals ON lf.DatabaseName = totals.DatabaseName
+		WHERE lf.DatabaseName = @databaseName
+			AND LogFileCanGrow = 1
+			AND (
+				-- Место на диске меньше установленного порога, при этом файл лога заполнен более чем на указанный % в ограничениях
+				(100 - (LogFileFreeSpaceMB / (LogSizeMB / 100))) >= @MaxLogUsagePercentThreshold AND [DiskFreeSpaceMB] <= @MinDiskFreeSpaceMB				
+				OR
+				-- Лог транзакций заполнен более чем на 95% от максимального размер лога (с учетом автоприроста)
+				(100 - [TotalLogFileFreeMB] / ([TotalLogMaxSizeMB] / 100)) >= @MaxLogUsagePercentThreshold
+			)
+		OPEN checkLogFiles;
+
+		FETCH NEXT FROM checkLogFiles 
+		INTO @diskName, @logFilePath, @logFileFreeSpaceMB, @diskFreeSpaceMB, @logFileUsedPercent, @totalLogFileUsedPercent;
+		WHILE @@FETCH_STATUS = 0  
+		BEGIN
+			IF(@totalLogFileUsedPercent >= @MaxLogUsagePercentThreshold)
+			BEGIN
+				SET @comment = 'Лог транзакций заполнен более чем на '
+					+ CAST(@totalLogFileUsedPercent as nvarchar(max)) 
+					+ '% от максимального размера лога транзакций с учетом автоприроста и ограничений размера файлов.'
+			END ELSE BEGIN
+				SET @comment = 'На диске ' + @diskName + ' осталось ' 
+					+ CAST(@diskFreeSpaceMB as nvarchar(max)) 
+					+ ' МБ, что меньше установленного ограничения в ' 
+					+ CAST(@MinDiskFreeSpaceMB as nvarchar(max))
+					+ ' МБ. При этом файл лога "'
+					+ CAST(@logFilePath as nvarchar(max))
+					+ '" заполнен уже на '
+					+ CAST(@logFileUsedPercent as nvarchar(max))
+					+ '%'
+			END
+
+			IF(@showDiagnosticMessages = 1)
+			BEGIN
+				SET @message = 'Обранужена проблема использования лога транзакций для базы ' 
+					+ @databaseName 
+					+ '. Описание: '
+					+ @comment
+				PRINT @message
+			END
+
+
+			IF(@showDiagnosticMessages = 1)
+			BEGIN
+				SET @message = 'Начало поиска соединений обслуживания для завершения. Поиск для базы: '
+					+ @databaseName;
+				PRINT @message
+			END
+
+			DECLARE @killCommand VARCHAR(15);
+			DECLARE @badSessionId int;
+			DECLARE badSessions CURSOR FOR
+			SELECT  es.session_id
+			FROM    sys.dm_exec_sessions es
+				LEFT OUTER JOIN sys.dm_exec_requests rs ON (es.session_id = rs.session_id)  
+				CROSS APPLY sys.dm_exec_sql_text(rs.sql_handle) AS sqltext
+			WHERE (
+					rs.command like '%ALTER INDEX%' 
+					or (rs.command like '%DBCC%' AND sqltext.text like '%ALTER%INDEX%')
+					or (rs.command like '%DBCC%' AND sqltext.text like '%EXECUTE%sp_IndexMaintenance%')
+				  )
+				AND es.database_id = DB_ID(@databaseName)
+			OPEN badSessions;
+
+			FETCH NEXT FROM badSessions 
+			INTO @badSessionId;
+
+			WHILE @@FETCH_STATUS = 0  
+			BEGIN
+				SET @killCommand = 'KILL ' + CAST(@badSessionId AS VARCHAR(5))
+
+				IF(@showDiagnosticMessages = 1)
+				BEGIN
+					SET @message = 'Найденное проблемное соединение. Будет выполнена команда завершения: '
+						+ @killCommand;
+					PRINT @message
+				END
+
+				DECLARE @startDate datetime = GetDate(),
+						@finishDate datetime = GetDate(),
+						@MaintenanceActionLogId bigint;
+				EXECUTE [dbo].[sp_add_maintenance_action_log]
+				   ''
+				  ,''
+				  ,'TRANSACTION LOG CONTROL'
+				  ,@RunDate
+				  ,@startDate
+				  ,@finishDate
+				  ,@databaseName
+				  ,0
+				  ,@comment
+				  ,0
+				  ,0
+				  ,@killCommand
+				  ,@MaintenanceActionLogId OUTPUT;
+						
+				EXEC(@killCommand)
+
+				FETCH NEXT FROM badSessions 
+				INTO @badSessionId;
+			END
+
+			CLOSE badSessions;  
+			DEALLOCATE badSessions;
+
+			IF(@showDiagnosticMessages = 1)
+			BEGIN
+				SET @message = 'Окончание поиска соединений обслуживания для завершения. Поиск для базы: '
+					+ @databaseName;
+				PRINT @message
+			END
+
+			FETCH NEXT FROM checkLogFiles 
+			INTO @diskName, @logFilePath, @logFileFreeSpaceMB, @diskFreeSpaceMB, @logFileUsedPercent, @totalLogFileUsedPercent;
+		END
+
+		CLOSE checkLogFiles;  
+		DEALLOCATE checkLogFiles;
+
+		IF(@showDiagnosticMessages = 1)
+		BEGIN
+				SET @message = 'Завершена проверка лога транзакций для базы ' 
+				+ @databaseName 
+				+ '. '
+			PRINT @message
+		END
+
+		FETCH NEXT FROM databasesUnderControl 
+		INTO @databaseName, @MinDiskFreeSpaceMB, @MaxLogUsagePercentThreshold;
+	END
+	CLOSE databasesUnderControl;  
+	DEALLOCATE databasesUnderControl;
+
+	IF OBJECT_ID('tempdb..#logFileInfoByDatabases') IS NOT NULL
+		DROP TABLE #logFileInfoByDatabases;
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_CreateOrUpdateJobsBySettings]
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	-- Поля шаблона
+	DECLARE
+		@Id int,
+		@Enable bit,
+		@ApplyTemplateQuery nvarchar(max),
+		@Name nvarchar(250),
+		@Description nvarchar(512),
+		@JobAction nvarchar(max),
+		@ScheduleEnable bit,
+		@ScheduleFreqType int,
+		@ScheduleFreqInterval int,
+		@ScheduleFreqSubdayType int,
+		@ScheduleFreqSubdayInterval int,
+		@ScheduleFreqRelativeInterval int,
+		@ScheduleFreqRecurrenceFactor int,
+		@ScheduleActiveStartDay int,
+		@ScheduleActiveEndDay int,
+		@ScheduleActiveStartTime int,
+		@ScheduleActiveEndTime int,
+		@VersionDate datetime,
+		@TimeoutSec int;
+
+	DECLARE
+		@jobName nvarchar(250),
+		@jobDescription nvarchar(513),
+		@jobScript nvarchar(max),
+		@currentjobVersionDate datetime,
+		@currentJobId uniqueidentifier,
+		@JobAlreadyExists bit = 0;
+
+	-- Служебные переменные
+	DECLARE
+		@sql nvarchar(max),
+		@currentDatabaseName nvarchar(250);
+
+	DECLARE job_templates_cursor CURSOR  
+	FOR SELECT
+		   [Id]
+		  ,[Enable]
+		  ,[ApplyTemplateQuery]
+		  ,[Name]
+		  ,[Description]
+		  ,[JobAction]
+		  ,[ScheduleEnable]
+		  ,[ScheduleFreqType]
+		  ,[ScheduleFreqInterval]
+		  ,[ScheduleFreqSubdayType]
+		  ,[ScheduleFreqSubdayInterval]
+		  ,[ScheduleFreqRelativeInterval]
+		  ,[ScheduleFreqRecurrenceFactor]
+		  ,[ScheduleActiveStartDay]
+		  ,[ScheduleActiveEndDay]
+		  ,[ScheduleActiveStartTime]
+		  ,[ScheduleActiveEndTime]
+		  ,[VersionDate]
+		  ,[TimeoutSec]
+	FROM [dbo].[JobTemplates]
+	WHERE [UseSetting] = 1;
+	OPEN job_templates_cursor;
+
+	FETCH NEXT FROM job_templates_cursor 
+	INTO @Id, @Enable, @ApplyTemplateQuery, @Name, @Description, @JobAction, @ScheduleEnable,
+		@ScheduleFreqType,	@ScheduleFreqInterval, @ScheduleFreqSubdayType, @ScheduleFreqSubdayInterval,
+		@ScheduleFreqRelativeInterval, @ScheduleFreqRecurrenceFactor, @ScheduleActiveStartDay,
+		@ScheduleActiveEndDay, @ScheduleActiveStartTime, @ScheduleActiveEndTime, @VersionDate, @TimeoutSec;
+
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN
+		SET @Description = @Description + ' (Version date:' + CAST(@VersionDate AS nvarchar(max)) + ')';
+
+		IF(@ApplyTemplateQuery IS NOT NULL)
+		BEGIN
+			-- Задания создаются по базам данных
+			IF(NOT EXISTS(SELECT 
+				[name] 
+			FROM sys.dm_exec_describe_first_result_set (@ApplyTemplateQuery, NULL, 0)
+			WHERE [name] = 'DatabaseName'))
+			BEGIN
+				PRINT @Name;
+				THROW 51000, 'Запрос шаблона не содержит поля DatabaseName.', 1;   
+			END
+
+			IF (OBJECT_ID('tempdb..##databasesForJobs') IS NOT NULL)
+				DROP Table ##databasesForJobs;
+			IF(1 = 0)
+			BEGIN
+				-- !!! Костыль для поддержания корректного поведения редактора SQL кода,
+				-- иначе ругается на несуществующую глобавльную временную таблицу
+				CREATE TABLE ##databasesForJobs (DatabaseName nvarchar(255));
+			END
+			SET @sql = CAST('SELECT [DatabaseName] INTO ##databasesForJobs FROM (' AS nvarchar(max)) 
+				+ CAST(@ApplyTemplateQuery AS nvarchar(max)) 
+				+ CAST(') AS T' AS nvarchar(max))
+			EXEC sp_executesql @sql
+
+			DECLARE job_templates_databases_cursor CURSOR  
+			FOR	SELECT [DatabaseName] FROM ##databasesForJobs;
+			OPEN job_templates_databases_cursor;
+			FETCH NEXT FROM job_templates_databases_cursor INTO @currentDatabaseName;
+			WHILE @@FETCH_STATUS = 0  
+			BEGIN
+				SET @jobName = REPLACE(@Name, '{DatabaseName}', @currentDatabaseName);
+				SET @jobDescription = REPLACE(@Description, '{DatabaseName}', @currentDatabaseName);
+				SET @JobAction = REPLACE(@JobAction, '{DatabaseName}', @currentDatabaseName);
+
+				SELECT
+					@jobAlreadyExists = 1,
+					@currentJobId = sj.job_id,
+					@currentjobVersionDate = CASE WHEN sj.date_modified > sj.date_created THEN sj.date_modified ELSE sj.date_created END
+				FROM [msdb].[dbo].[sysjobs] sj
+				WHERE sj.[name] = @jobName
+
+				-- Если задание уже существует, но в настройках содержится более новая версия,
+				-- то удаляем старое задание и создаем заново
+				IF(@jobAlreadyExists = 1 AND @VersionDate > @currentjobVersionDate)
+				BEGIN
+					EXEC msdb.dbo.sp_delete_job 
+						@job_id = @currentJobId, 
+						@delete_unused_schedule = 1;
+					SET @jobAlreadyExists = 0;
+				END
+
+				IF(@jobAlreadyExists = 0)
+				BEGIN
+					EXECUTE [dbo].[sp_CreateSimpleJob] 
+					   @jobName = @jobName
+					  ,@jobDescription = @jobDescription
+					  ,@jobEnabled = @Enable
+					  ,@databaseName = @currentDatabaseName
+					  ,@jobAction = @JobAction
+					  ,@scheduleEnabled = @ScheduleEnable
+					  ,@scheduleFreqType = @ScheduleFreqType
+					  ,@scheduleFreqInterval = @ScheduleFreqInterval
+					  ,@scheduleFreqSubdayType = @ScheduleFreqSubdayType
+					  ,@scheduleFreqSubdayInterval = @ScheduleFreqSubdayInterval
+					  ,@scheduleFreqRelativeInterval = @ScheduleFreqRelativeInterval
+					  ,@scheduleFreqRecurrenceFactor = @ScheduleFreqRecurrenceFactor
+					  ,@scheduleActiveStartDate = @ScheduleActiveStartDay
+					  ,@scheduleActiveEndDate = @ScheduleActiveEndDay
+					  ,@scheduleActiveStartTime = @ScheduleActiveStartTime
+					  ,@scheduleActiveEndTime = @ScheduleActiveEndTime
+					  ,@jobTimeoutSec = @TimeoutSec
+				END
+
+				FETCH NEXT FROM job_templates_databases_cursor INTO @currentDatabaseName;
+			END
+			CLOSE job_templates_databases_cursor;  
+			DEALLOCATE job_templates_databases_cursor;
+		END ELSE BEGIN			
+			SELECT
+				@jobAlreadyExists = 1,
+				@currentJobId = sj.job_id,
+				@currentjobVersionDate = CASE WHEN sj.date_modified > sj.date_created THEN sj.date_modified ELSE sj.date_created END
+			FROM [msdb].[dbo].[sysjobs] sj
+			WHERE sj.[name] = @Name
+			
+			-- Если задание уже существует, но в настройках содержится более новая версия,
+			-- то удаляем старое задание и создаем заново
+			IF(@jobAlreadyExists = 1 AND @VersionDate > @currentjobVersionDate)
+			BEGIN
+				EXEC msdb.dbo.sp_delete_job 
+					@job_id = @currentJobId, 
+					@delete_unused_schedule = 1;
+				SET @jobAlreadyExists = 0;
+			END
+
+			IF(@jobAlreadyExists = 0)
+			BEGIN
+				-- Задание создается единое на весь сервер
+				EXECUTE [dbo].[sp_CreateSimpleJob] 
+					@jobName = @Name
+					,@jobDescription = @Description
+					,@jobEnabled = @Enable
+					,@databaseName = 'SQLServerMaintenance'
+					,@jobAction = @JobAction
+					,@scheduleEnabled = @ScheduleEnable
+					,@scheduleFreqType = @ScheduleFreqType
+					,@scheduleFreqInterval = @ScheduleFreqInterval
+					,@scheduleFreqSubdayType = @ScheduleFreqSubdayType
+					,@scheduleFreqSubdayInterval = @ScheduleFreqSubdayInterval
+					,@scheduleFreqRelativeInterval = @ScheduleFreqRelativeInterval
+					,@scheduleFreqRecurrenceFactor = @ScheduleFreqRecurrenceFactor
+					,@scheduleActiveStartDate = @ScheduleActiveStartDay
+					,@scheduleActiveEndDate = @ScheduleActiveEndDay
+					,@scheduleActiveStartTime = @ScheduleActiveStartTime
+					,@scheduleActiveEndTime = @ScheduleActiveEndTime
+					,@jobTimeoutSec = @TimeoutSec
+			END
+		END
+
+		FETCH NEXT FROM job_templates_cursor 
+		INTO @Id, @Enable, @ApplyTemplateQuery, @Name, @Description, @JobAction, @ScheduleEnable,
+			@ScheduleFreqType,	@ScheduleFreqInterval, @ScheduleFreqSubdayType, @ScheduleFreqSubdayInterval,
+			@ScheduleFreqRelativeInterval, @ScheduleFreqRecurrenceFactor, @ScheduleActiveStartDay,
+			@ScheduleActiveEndDay, @ScheduleActiveStartTime, @ScheduleActiveEndTime, @VersionDate, @TimeoutSec;
+	END
+	CLOSE job_templates_cursor;  
+	DEALLOCATE job_templates_cursor;
+END
+GO
+
+CREATE PROCEDURE [dbo].[sp_CreateSimpleJob]
+	@jobName nvarchar(250),
+	@jobDescription nvarchar(max),
+	@jobEnabled bit = 1,
+	@databaseName sysname,
+	@jobAction nvarchar(max),
+	@scheduleEnabled bit = 1,
+	@scheduleFreqType int = 4,
+	@scheduleFreqInterval int = 1,
+	@scheduleFreqSubdayType int = 2,
+	@scheduleFreqSubdayInterval int = 60,
+	@scheduleFreqRelativeInterval int = 0,
+	@scheduleFreqRecurrenceFactor int = 0,
+	@scheduleActiveStartDate int = 20000101,
+	@scheduleActiveEndDate int = 99991231,
+	@scheduleActiveStartTime int = 0,
+	@scheduleActiveEndTime int = 235959,
+	@jobTimeoutSec int = 0
+AS
+BEGIN
+	SET NOCOUNT ON;
+	DECLARE @ReturnCode INT;
+
+	BEGIN TRANSACTION
+	
+	SELECT @ReturnCode = 0
+	IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories
+				   WHERE name=N'[Uncategorized (Local)]' 
+				   AND category_class=1)
+	BEGIN
+		EXEC @ReturnCode = msdb.dbo.sp_add_category 
+			@class=N'JOB', 
+			@type=N'LOCAL', 
+			@name=N'[Uncategorized (Local)]'
+		IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+			GOTO QuitWithRollback
+	END
+
+	DECLARE @jobId BINARY(16);
+	EXEC @ReturnCode =  msdb.dbo.sp_add_job 
+		@job_name = @jobName, 
+		@enabled = @jobEnabled, 
+		@notify_level_eventlog=0, 
+		@notify_level_email=0, 
+		@notify_level_netsend=0, 
+		@notify_level_page=0, 
+		@delete_level=0, 
+		@description = @jobDescription, 
+		@category_name=N'[Uncategorized (Local)]', 
+		@job_id = @jobId OUTPUT
+
+	IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+		GOTO QuitWithRollback
+	
+	BEGIN TRY
+		DECLARE 
+			@jobActionXml xml,
+			@stepName nvarchar(250),
+			@stepScript nvarchar(max),
+			@totalSteps int,
+			@currentOnSuccessAction int,
+			@stepNumber int = 0;
+		SET @jobActionXml = @jobAction;
+		
+		SELECT 
+			@totalSteps = COUNT(*)
+		FROM @jobActionXml.nodes('/steps/step') AS ActionInfo(Step)
+		WHERE ActionInfo.Step.value('(name)[1]', 'nvarchar(max)') IS NOT NULL
+			AND ActionInfo.Step.value('(script)[1]', 'nvarchar(max)') IS NOT NULL
+
+		IF(@totalSteps = 0)
+		BEGIN
+			THROW 50000, 'Для информации. Описание шага не распознано как XML-структура. Используем скрипт как есть в единственном шаге.', 1; 
+		END
+
+		DECLARE job_steps_cursor CURSOR  
+		FOR	SELECT 
+			ActionInfo.Step.value('(name)[1]', 'nvarchar(max)') AS [StepName],
+			ActionInfo.Step.value('(script)[1]', 'nvarchar(max)') AS [Script]
+		FROM @jobActionXml.nodes('/steps/step') AS ActionInfo(Step)
+		WHERE ActionInfo.Step.value('(name)[1]', 'nvarchar(max)') IS NOT NULL
+			AND ActionInfo.Step.value('(script)[1]', 'nvarchar(max)') IS NOT NULL;
+		OPEN job_steps_cursor;
+		FETCH NEXT FROM job_steps_cursor INTO @stepName, @stepScript;
+		WHILE @@FETCH_STATUS = 0  
+		BEGIN
+			SET @stepNumber = @stepNumber + 1;
+			IF(@stepNumber = @totalSteps)
+			BEGIN
+				SET @currentOnSuccessAction = 1;
+			END ELSE BEGIN
+				SET @currentOnSuccessAction = 3;
+			END
+
+			EXEC @ReturnCode = msdb.dbo.sp_add_jobstep 
+				@job_id = @jobId, 
+				@step_name = @stepName, 
+				@step_id = @stepNumber, 
+				@on_success_action = @currentOnSuccessAction,
+				@subsystem=N'TSQL', 
+				@command = @stepScript, 
+				@database_name = @databaseName
+
+			FETCH NEXT FROM job_steps_cursor INTO @stepName, @stepScript;
+		END
+		CLOSE job_steps_cursor;  
+		DEALLOCATE job_steps_cursor;
+	END TRY
+	BEGIN CATCH		
+		EXEC @ReturnCode = msdb.dbo.sp_add_jobstep 
+			@job_id = @jobId, 
+			@step_name = @jobName, 
+			@step_id=1, 
+			@cmdexec_success_code=0, 
+			@on_success_action=1, 
+			@on_success_step_id=0, 
+			@on_fail_action=2, 
+			@on_fail_step_id=0, 
+			@retry_attempts=0, 
+			@retry_interval=0, 
+			@os_run_priority=0,
+			@subsystem=N'TSQL', 
+			@command = @jobAction, 
+			@database_name = @databaseName, 
+			@flags=0
+		IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+			GOTO QuitWithRollback
+	END CATCH
+
+	EXEC @ReturnCode = msdb.dbo.sp_update_job 
+		@job_id = @jobId,
+		@start_step_id = 1
+	IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+		GOTO QuitWithRollback
+
+	EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name = @jobName, 
+		@enabled = @scheduleEnabled, 
+		@freq_type = @scheduleFreqType,
+		@freq_interval = @scheduleFreqInterval, 
+		@freq_subday_type = @scheduleFreqSubdayType, 
+		@freq_subday_interval = @scheduleFreqSubdayInterval, 
+		@freq_relative_interval = @scheduleFreqRelativeInterval, 
+		@freq_recurrence_factor = @scheduleFreqRecurrenceFactor, 
+		@active_start_date = @scheduleActiveStartDate, 
+		@active_end_date = @scheduleActiveEndDate, 
+		@active_start_time = @scheduleActiveStartTime, 
+		@active_end_time = @scheduleActiveEndTime
+
+	IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+		GOTO QuitWithRollback
+
+	EXEC @ReturnCode = msdb.dbo.sp_add_jobserver
+		@job_id = @jobId, 
+		@server_name = N'(local)'
+	IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
+		GOTO QuitWithRollback
+
+	IF(@jobTimeoutSec > 0)
+	BEGIN
+		EXECUTE [dbo].[sp_AddOrUpdateJobTimeout]
+			@jobName = @jobName,
+			@timeoutSec = @jobTimeoutSec
+	END
+
+	COMMIT TRANSACTION
+	GOTO EndSave
+
+	QuitWithRollback:
+	IF (@@TRANCOUNT > 0) 
+		ROLLBACK TRANSACTION
+
+	EndSave:
+END
+
 GO
 
 CREATE PROCEDURE [dbo].[sp_FillConnectionsStatistic]
@@ -482,8 +1720,111 @@ GROUP BY
 END
 GO
 
+CREATE PROCEDURE [dbo].[sp_FixMissingStatisticOnAlwaysOnReplica]
+	@databaseName sysname = null,
+	@useMonitoringDatabase bit = 1,
+    @monitoringDatabaseName sysname = 'SQLServerMaintenance'
+AS
+BEGIN
+	SET NOCOUNT ON;
 
+	DECLARE @msg nvarchar(max);
 
+    IF @databaseName IS NOT NULL AND DB_ID(@databaseName) IS NULL
+    BEGIN
+        SET @msg = 'Database ' + @databaseName + ' is not exists.';
+        THROW 51000, @msg, 1;
+        RETURN -1;
+    END
+
+	DECLARE @currentDatabaseName sysname;
+
+	DECLARE databases_cursor CURSOR  
+	FOR SELECT
+		[name]
+	FROM sys.databases
+	WHERE (@databaseName is null or [name] = @databaseName)
+		AND [name] in (
+			select distinct
+				database_name
+			from sys.dm_hadr_database_replica_cluster_states dhdrcs
+				inner join sys.availability_replicas ar
+				on dhdrcs.replica_id = ar.replica_id
+			where availability_mode_desc = 'ASYNCHRONOUS_COMMIT'
+		)
+	OPEN databases_cursor;
+	FETCH NEXT FROM databases_cursor INTO @currentDatabaseName;
+
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN
+		PRINT @currentDatabaseName;
+
+		DECLARE @sql nvarchar(max);
+		SET @sql = CAST('
+		USE [' AS nvarchar(max)) + CAST(@currentDatabaseName AS nvarchar(max)) + CAST(']
+		SET NOCOUNT ON;
+
+		DECLARE
+			@objid int,
+			@statsid INT,
+			@NeedResetCache bit = 0,
+			@dbname sysname = DB_NAME();
+		DECLARE cur CURSOR FOR
+ 
+		SELECT s.object_id, s.stats_id
+		FROM sys.stats AS s
+			JOIN sys.objects AS o
+			ON s.object_id = o.object_id
+		WHERE s.auto_created = 1
+			AND o.is_ms_shipped = 0
+		OPEN cur
+		FETCH NEXT FROM cur INTO @objid, @statsid
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			if not exists (select *
+			from [sys].[dm_db_stats_properties] (@objid, @statsid))
+		BEGIN
+ 
+				PRINT (convert(varchar(10), @objid) + ''|'' + convert(varchar(10), @statsid))
+ 
+				IF(@useMonitoringDatabase = 1)
+				BEGIN
+					INSERT [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[AlwaysOnReplicaMissingStats]
+					SELECT @dbname, o.[name], s.[name], GETDATE()
+					FROM sys.stats AS s JOIN sys.objects AS o
+						ON s.object_id = o.object_id
+					WHERE o.object_id = @objid AND s.stats_id = @statsid
+				END
+				
+				SET @NeedResetCache = 1
+ 
+			END
+			FETCH NEXT FROM cur INTO @objid, @statsid
+		END
+		CLOSE cur
+		DEALLOCATE cur
+ 
+		IF @NeedResetCache = 1
+		BEGIN
+			PRINT ''Был сброшен системный кэш для базы данных''
+			PRINT @dbname
+			DBCC FREESYSTEMCACHE(@dbname);
+		END
+		' AS nvarchar(max))
+
+		EXECUTE sp_executesql
+			@sql,
+			N'@useMonitoringDatabase bit, @monitoringDatabaseName sysname',
+			@useMonitoringDatabase, @monitoringDatabaseName
+
+		FETCH NEXT FROM databases_cursor INTO @currentDatabaseName;
+	END
+	CLOSE databases_cursor;  
+	DEALLOCATE databases_cursor;
+END
+GO
+
+GO
 CREATE PROCEDURE [dbo].[sp_GetCurrentResumableIndexRebuilds] 
 	@databaseName sysname
 AS
@@ -660,6 +2001,9 @@ BEGIN
         -- Размер занятого места в файлах лога транзакций превышает указанный порог в МБ
         RETURN 0;
     END
+
+	EXECUTE [dbo].[sp_apply_maintenance_action_to_run] 
+		@databaseName;
  
 	-- Возобновляемое перестроение индексов
 	DECLARE @LOCAL_ResumableIndexRebuilds TABLE
@@ -878,7 +2222,10 @@ DECLARE
     ,@StartDate datetime
     ,@FinishDate datetime
     ,@RunDate datetime = GETDATE()
-    ,@MaintenanceActionLogId bigint;
+    ,@MaintenanceActionLogId bigint
+    ,@CurrentReorganizeIndexAllowPageLocks bit
+	,@CurrentSqlDisableAllowPageLocksIfNeeded nvarchar(max)
+	,@CurrentMaintenanceActionToRunId int;
  
 IF OBJECT_ID(''tempdb..#MaintenanceCommands'') IS NOT NULL
     DROP TABLE #MaintenanceCommands;
@@ -995,7 +2342,7 @@ BEGIN
             NULL,
             N''LIMITED''
         ) dt
-        LEFT JOIN sys.sysindexes si ON dt.object_id = si.id
+        LEFT JOIN sys.sysindexes si ON dt.object_id = si.id AND si.indid = dt.index_id
         LEFT JOIN (
             SELECT
             t.object_id AS [TableObjectId],
@@ -1214,6 +2561,43 @@ BEGIN
             SET @UseOnlineRebuild = 1;
             SET @currentSQL = @SQLSpecial
         END
+
+		SET @CurrentSqlDisableAllowPageLocksIfNeeded = null;
+		IF(@Operation = ''REORGANIZE INDEX'')
+		BEGIN
+			DECLARE 
+				@IndexNameNormalized nvarchar(255),
+				@TableNameNormalized nvarchar(255),
+				@SchemaNameNormalized nvarchar(255);
+			SET @TableNameNormalized = REPLACE(@ObjectName, ''['', '''')
+			SET @TableNameNormalized = REPLACE(@TableNameNormalized, '']'', '''')
+			SET @IndexNameNormalized = REPLACE(@IndexName, ''['', '''')
+			SET @IndexNameNormalized = REPLACE(@IndexNameNormalized, '']'', '''')
+
+			SELECT
+				@SchemaNameNormalized = SCHEMA_NAME(o.schema_id),	
+				@CurrentReorganizeIndexAllowPageLocks = [allow_page_locks]
+			FROM sys.indexes i
+				left join sys.objects o
+				on i.object_id = o.object_id
+			WHERE i.[name] = @IndexNameNormalized
+						
+			IF(@CurrentReorganizeIndexAllowPageLocks = 0)
+			BEGIN
+				DECLARE @sqlEnableAllowPageLocks nvarchar(max);
+				SET @sqlEnableAllowPageLocks = ''ALTER INDEX ['' + @IndexNameNormalized + ''] ON ['' + @SchemaNameNormalized + ''].['' + @TableNameNormalized + ''] SET (ALLOW_PAGE_LOCKS = ON);''
+				SET @CurrentSqlDisableAllowPageLocksIfNeeded = ''ALTER INDEX ['' + @IndexNameNormalized + ''] ON ['' + @SchemaNameNormalized + ''].['' + @TableNameNormalized + ''] SET (ALLOW_PAGE_LOCKS = OFF);''
+				EXEC sp_executesql @sqlEnableAllowPageLocks;
+
+				EXECUTE [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[sp_add_maintenance_action_to_run]
+					@DBNAME,
+					@Operation,
+					@CurrentSqlDisableAllowPageLocksIfNeeded,
+					@CurrentMaintenanceActionToRunId OUTPUT;
+					
+			END
+		END
+
         -- Сохраняем предварительную информацию об операции обслуживания без даты завершения
         IF(@useMonitoringDatabase = 1)
         BEGIN
@@ -1233,6 +2617,14 @@ BEGIN
               ,@MaintenanceActionLogId OUTPUT;
         END
         EXEC sp_executesql @currentSQL;
+
+		IF(@Operation = ''REORGANIZE INDEX'' AND @CurrentSqlDisableAllowPageLocksIfNeeded IS NOT NULL)
+		BEGIN
+			EXEC sp_executesql @CurrentSqlDisableAllowPageLocksIfNeeded;
+			EXECUTE [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[sp_remove_maintenance_action_to_run]
+				@CurrentMaintenanceActionToRunId;
+		END
+
         SET @FinishDate = GetDate();
          
         -- Устанавливаем фактическую дату завершения операции
@@ -1289,11 +2681,26 @@ IF OBJECT_ID(''tempdb..#MaintenanceCommandsTemp'') IS NOT NULL
 END
 GO
 
+CREATE PROCEDURE [dbo].[sp_remove_maintenance_action_to_run]
+	@Id int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    DELETE FROM [dbo].[MaintenanceActionsToRun]
+	WHERE [Id] = @Id
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_SaveDatabasesTablesStatistic]    Script Date: 30.10.2023 13:57:06 ******/
+
+GO
+
+GO
 CREATE PROCEDURE [dbo].[sp_SaveDatabasesTablesStatistic]
 AS
 BEGIN
 	SET NOCOUNT ON;
-	SET QUOTED_IDENTIFIER ON;
+	;
 
 	IF OBJECT_ID('tempdb..#tableSizeResult') IS NOT NULL
 		DROP TABLE #tableSizeResult;
@@ -1946,282 +3353,19 @@ DEALLOCATE ms_crs_tnames
 END
 GO
 
-CREATE PROCEDURE [dbo].[sp_FixMissingStatisticOnAlwaysOnReplica]
-	@databaseName sysname = null,
-	@useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMaintenance'
-AS
+CREATE TRIGGER [dbo].[tg_JobTemplate_AfterUpdate] 
+   ON  [dbo].[JobTemplates]
+   AFTER UPDATE
+AS 
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
-
-    IF @databaseName IS NOT NULL AND DB_ID(@databaseName) IS NULL
-    BEGIN
-        SET @msg = 'Database ' + @databaseName + ' is not exists.';
-        THROW 51000, @msg, 1;
-        RETURN -1;
-    END
-
-	DECLARE @currentDatabaseName sysname;
-
-	DECLARE databases_cursor CURSOR  
-	FOR SELECT
-		[name]
-	FROM sys.databases
-	WHERE (@databaseName is null or [name] = @databaseName)
-		AND [name] in (
-			select distinct
-				database_name
-			from sys.dm_hadr_database_replica_cluster_states dhdrcs
-				inner join sys.availability_replicas ar
-				on dhdrcs.replica_id = ar.replica_id
-			where availability_mode_desc = 'ASYNCHRONOUS_COMMIT'
-		)
-	OPEN databases_cursor;
-	FETCH NEXT FROM databases_cursor INTO @currentDatabaseName;
-
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN
-		PRINT @currentDatabaseName;
-
-		DECLARE @sql nvarchar(max);
-		SET @sql = CAST('
-		USE [' AS nvarchar(max)) + CAST(@currentDatabaseName AS nvarchar(max)) + CAST(']
-		SET NOCOUNT ON;
-
-		DECLARE
-			@objid int,
-			@statsid INT,
-			@NeedResetCache bit = 0,
-			@dbname sysname = DB_NAME();
-		DECLARE cur CURSOR FOR
- 
-		SELECT s.object_id, s.stats_id
-		FROM sys.stats AS s
-			JOIN sys.objects AS o
-			ON s.object_id = o.object_id
-		WHERE s.auto_created = 1
-			AND o.is_ms_shipped = 0
-		OPEN cur
-		FETCH NEXT FROM cur INTO @objid, @statsid
-		WHILE @@FETCH_STATUS = 0
-		BEGIN
-			if not exists (select *
-			from [sys].[dm_db_stats_properties] (@objid, @statsid))
-		BEGIN
- 
-				PRINT (convert(varchar(10), @objid) + ''|'' + convert(varchar(10), @statsid))
- 
-				IF(@useMonitoringDatabase = 1)
-				BEGIN
-					INSERT [' AS nvarchar(max)) + CAST(@monitoringDatabaseName  AS nvarchar(max)) + CAST('].[dbo].[AlwaysOnReplicaMissingStats]
-					SELECT @dbname, o.[name], s.[name], GETDATE()
-					FROM sys.stats AS s JOIN sys.objects AS o
-						ON s.object_id = o.object_id
-					WHERE o.object_id = @objid AND s.stats_id = @statsid
-				END
-				
-				SET @NeedResetCache = 1
- 
-			END
-			FETCH NEXT FROM cur INTO @objid, @statsid
-		END
-		CLOSE cur
-		DEALLOCATE cur
- 
-		IF @NeedResetCache = 1
-		BEGIN
-			PRINT ''Был сброшен системный кэш для базы данных''
-			PRINT @dbname
-			DBCC FREESYSTEMCACHE(@dbname);
-		END
-		' AS nvarchar(max))
-
-		EXECUTE sp_executesql
-			@sql,
-			N'@useMonitoringDatabase bit, @monitoringDatabaseName sysname',
-			@useMonitoringDatabase, @monitoringDatabaseName
-
-		FETCH NEXT FROM databases_cursor INTO @currentDatabaseName;
-	END
-	CLOSE databases_cursor;  
-	DEALLOCATE databases_cursor;
+    UPDATE [dbo].[JobTemplates]
+	SET [VersionDate] = GETDATE()
+	FROM [dbo].[JobTemplates] jt
+		INNER JOIN inserted i
+			ON jt.Id = i.Id
 END
 GO
-
-CREATE PROCEDURE [dbo].[sp_BackupDatabase]
-	@databaseName sysname,
-	@backupDirectory nvarchar(max),
-	@backupType nvarchar(10) = 'FULL',	
-	@useSubdirectory bit = 1,
-	@showScriptOnly bit = 0,
-	@backupCompressionType nvarchar(10) = 'AUTO',	
-	@copyOnly bit = 0,
-	@checksum bit = 0,
-	@continiueOnError bit = 0,
-	@blockSize int = 0,
-	@maxTransferSize int = 0,
-	@bufferCount int = 0,
-	@verify bit = 0
-	
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE
-		@backupExtension nvarchar(5),
-		@fileName nvarchar(max),
-		@backupFileFullName nvarchar(max),
-		@useCompression bit,
-		@msg nvarchar(max),
-		@sql nvarchar(max);
-
-	IF DB_ID(@databaseName) IS NULL
-    BEGIN
-        SET @msg = 'Database ' + @databaseName + ' is not exists.';
-        THROW 51000, @msg, 1;
-        RETURN -1;
-    END
-
-	IF(NOT UPPER(@backupType) IN ('FULL', 'DIFF', 'TRN'))
-	BEGIN
-	    SET @msg = 'Backup type is incorrect. Valid values: FULL, DIFF, TRN.';
-        THROW 51000, @msg, 1;
-        RETURN -1;
-	END
-
-	IF(NOT UPPER(@backupCompressionType) IN ('AUTO', 'ENABLE', 'DISABLE'))
-	BEGIN
-	    SET @msg = 'Backup compression type is incorrect. Valid values: AUTO, ENABLE, DISABLE.';
-        THROW 51000, @msg, 1;
-        RETURN -1;
-	END  
-
-	SET @backupExtension = 
-		CASE 
-			WHEN @backupType = 'FULL' THEN 'bak'
-			WHEN @backupType = 'DIFF' THEN 'diff'
-			WHEN @backupType = 'TRN' THEN 'trn'
-		END
-
-	if(@backupCompressionType = 'AUTO')
-	BEGIN
-		SELECT @useCompression = CAST(value AS bit)
-		FROM sys.configurations   
-		WHERE name = 'backup compression default';
-	END ELSE IF(@backupCompressionType = 'ENABLE')
-	BEGIN
-		SET @useCompression = 1
-	END ELSE IF(@backupCompressionType = 'DISABLE') 
-	BEGIN
-		SET @useCompression = 0
-	END
-
-	SET @fileName = @databaseName + '_backup_' + FORMAT(sysdatetime(), 'yyyy_MM_dd_HHmmss_ffffff');
-
-	SET @backupFileFullName =
-		CASE WHEN SUBSTRING(@backupDirectory, LEN(@backupDirectory), 1) = '\' THEN SUBSTRING(@backupDirectory, 1, LEN(@backupDirectory) - 1) ELSE @backupDirectory END + 
-		'\' + 
-		CASE WHEN @useSubdirectory = 1 THEN @databaseName + '\' ELSE '' END;
-
-	if(@showScriptOnly = 0)
-	BEGIN
-		SET @sql = 'EXEC master.sys.xp_create_subdir N''' + @backupFileFullName + ''''
-		EXECUTE sp_executesql @sql
-	END
-
-	SET @backupFileFullName = @backupFileFullName + @fileName + '.' + @backupExtension;
-
-	SET @sql = 
-'BACKUP ' + CASE WHEN @backupType = 'TRN' THEN 'LOG' ELSE 'DATABASE' END + ' [' + @databaseName + ']
-TO DISK = N''' + @backupFileFullName + ''' WITH NOFORMAT,
-NOINIT,
-NAME = N''' + @fileName + ''',
-SKIP, REWIND, NOUNLOAD' +
-	CASE WHEN @backupType = 'DIFF' THEN ', DIFFERENTIAL' ELSE '' END + 
-	CASE WHEN @useCompression = 1 THEN ', COMPRESSION' ELSE '' END + 
-	CASE WHEN @copyOnly = 1 THEN ', COPY_ONLY' ELSE '' END +
-	CASE WHEN @checksum = 1 THEN ', CHECKSUM' ELSE '' END +
-	CASE WHEN @continiueOnError = 1 THEN ', CONTINUE_AFTER_ERROR' ELSE '' END +
-	CASE WHEN @blockSize > 0 THEN ', BLOCKSIZE = ' + CAST(@blockSize as nvarchar(max)) ELSE '' END +
-	CASE WHEN @maxTransferSize > 0 THEN ', MAXTRANSFERSIZE = ' + CAST(@maxTransferSize as nvarchar(max)) ELSE '' END +
-	CASE WHEN @bufferCount > 0 THEN ', BUFFERCOUNT = ' + CAST(@bufferCount as nvarchar(max)) ELSE '' END + ', STATS = 10;'
-
-	if(@verify = 1)
-	BEGIN
-		DECLARE @backupSetId as int;
-
-		SELECT @backupSetId = position from msdb..backupset 
-		WHERE [database_name] = @databaseName and backup_set_id = (
-			select max(backup_set_id) 
-			from msdb..backupset
-			where [database_name] = @databaseName
-		)
-
-		IF @backupSetId is null 
-		BEGIN
-			raiserror(N'Ошибка верификации. Сведения о резервном копировании для базы данных "klgd82" не найдены.', 16, 1) 
-		END
-
-		SET @sql = @sql + '
-
-RESTORE VERIFYONLY FROM  DISK = N''' + @backupFileFullName + ''' WITH  FILE = ' + CAST(@backupSetId AS nvarchar(max)) + ',  NOUNLOAD,  NOREWIND;'
-	END
-
-	if(@showScriptOnly = 1)
-	BEGIN
-		PRINT @sql
-	END ELSE
-	BEGIN
-		EXECUTE sp_executesql @sql
-	END
-END
-
-CREATE PROCEDURE [dbo].[sp_ClearFiles]
-	@folderPath nvarchar(max),
-	@fileType bit = 0,	
-	@fileExtension nvarchar(10) = null,
-	@cutoffDate datetime = null,
-	@cutoffDateDays int = null,
-	@includeSubfolders bit = 1,
-	@scriptOnly bit = 0	
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	DECLARE @msg nvarchar(max);
-
-	IF(@cutoffDate is not null AND @cutoffDateDays is not null)
-	BEGIN
-		SET @msg = 'You should setup only one parameter: @cutoffDate or @cutoffDateDays';
-        THROW 51000, @msg, 1;
-        RETURN -1;
-	END
-
-	IF(@cutoffDateDays IS NOT NULL)
-	BEGIN
-		SET @cutoffDate = DATEADD(day, -@cutoffDateDays, GETDATE())
-	END ELSE IF(@cutoffDate is null)
-	BEGIN
-		SET @cutoffDate = GETDATE()
-	END
-
-	DECLARE @sql nvarchar(max);
-	SET @sql = 'EXECUTE master.dbo.xp_delete_file ' + 
-		CAST(@fileType AS nvarchar(max)) + 
-		',N''' + @folderPath + '''' +
-		',N''' + @fileExtension + 
-		''',N''' + FORMAT(@cutoffDate, 'yyyy-MM-ddTHH:mm:ss') + ''',' + 
-		CAST(@includeSubfolders AS nvarchar(max))
-
-	IF(@scriptOnly = 1)
-	BEGIN
-		PRINT @sql
-	END ELSE
-	BEGIN
-		EXECUTE sp_executesql @sql
-	END	
-END
-
-
+ALTER TABLE [dbo].[JobTemplates] ENABLE TRIGGER [tg_JobTemplate_AfterUpdate]
+GO

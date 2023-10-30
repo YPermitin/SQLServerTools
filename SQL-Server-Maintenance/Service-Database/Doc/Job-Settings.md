@@ -1,0 +1,278 @@
+# Настройки заданий агента SQL Server
+
+Функционал для управления и контроля заданиями агента SQL Server.
+
+- [Шаблоны для автосоздания и настройки заданий](#шаблоны-для-автосоздания-и-настройки-заданий)
+    - [Задания по серверу](#задания-по-серверу)
+    - [Задания по базам данных](#задания-по-базам-данных)
+- [Контроль таймаута выполнения заданий](#контроль-таймаута-выполнения-заданий)
+
+## Шаблоны для автосоздания и настройки заданий
+
+При обслуживании множества серверов может понадобиться настроить автосоздание типовых заданий и поддержание настроек этих заданий в актуальном состоянии.
+
+Для этих целей имеется таблица шаблонов **JobTemplates**, в которой можно хранить шаблоны настроек заданий в двух вариантах.
+
+### Задания по серверу
+
+Эти задания создаются в единственном экземпляре на один инстанс SQL Server. Например, могут использоваться для каких-то глобавльных задач по всему серверу.
+
+По умолчанию таких заданий добавлено два для слежубной базы:
+
+* **SQLServerMaintenance.ControlTransactionLogUsage** - задание контроля использования логов транзакций.
+* **SQLServerMaintenance.ControlJobsExecutionTimeout** - задание контроля выполнения заданий агента SQL Server в части превышения таймаута выполнения.
+
+В качестве примера рассмотрим добавление настроек для **SQLServerMaintenance.ControlTransactionLogUsage**. В таблицу **JobTemplates** добавлена следующая запись:
+
+```sql
+INSERT [dbo].[JobTemplates] (
+    [UseSetting], 
+    [Enable], 
+    [ApplyTemplateQuery], 
+    [Name], 
+    [Description], 
+    [JobAction], 
+    [ScheduleEnable], 
+    [ScheduleFreqType], 
+    [ScheduleFreqInterval], 
+    [ScheduleFreqSubdayType], 
+    [ScheduleFreqSubdayInterval],
+    [ScheduleFreqRelativeInterval], 
+    [ScheduleFreqRecurrenceFactor],
+    [ScheduleActiveStartDay], 
+    [ScheduleActiveEndDay], 
+    [ScheduleActiveStartTime], 
+    [ScheduleActiveEndTime], 
+    [VersionDate], 
+    [TimeoutSec]) 
+VALUES (
+    -- UseSetting - признак использования настройки.
+    -- Если выключена, то задания по ней не будут создаваться
+    -- или обновляться.
+	1, 
+    -- Enable - задание включено. Если выключено, то задания будут созданы,
+    -- но в выключенном состоянии.
+	1, 
+    -- ApplyTemplateQuery - шаблон запроса для формирования заданий в разрезе баз данных.
+    -- В этом случае не используется, т.к. задания создаются для сервера в единственном экземпляре.
+	NULL, 
+    -- Name - имя задания.
+	N'SQLServerMaintenance.ControlTransactionLogUsage',
+    -- Description - описание задания.
+	N'Контроль заполнения лога транзакций', 
+    -- JobAction - действие задания. В данном случае используется простое текстовое описание в виде скрипта.
+    -- Примечание: если нужно создать задание с несколькими шагами, то есть вариант описания шагов с помощью XML. Этот вариант будет описан в другом примере.
+	N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlTransactionLogUsage] ', 
+    -- [Задание расписание запуска] <<
+    -- Эти поля содержат настройки для задания расписания запуска.
+    -- Подробнее можно узнать в официальной документации:
+    -- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-add-schedule-transact-sql?view=sql-server-ver16
+    -- Ниже приведено краткое описание.
+    -- Также для удобства можно задать расписание у задания через SSMS, а значения параметров получить через формирование скрипта CREATE.
+    -- [Задание расписание запуска] <<
+    -- ScheduleEnable - расписание используется.
+	1, 
+    -- ScheduleFreqType - тип частоты выполнения задания. Например, 4 - это ежедневно, 8 - еженедельно, 16 - ежемесячно, 1 - разовое выполнение.
+	4, 
+    -- ScheduleFreqInterval - дни, в течении которых выполняется задание. Например, 4 - ежедневно, 8 ежемесячно, 1 - не используется и т.д.
+	1, 
+    -- ScheduleFreqSubdayType - определяет единицу измерения для параметра ScheduleFreqInterval. Например, 2 - секунды, 4 - минуты, 8 - часы.
+	4, 
+    -- ScheduleFreqSubdayInterval - количество периодов ScheduleFreqSubdayType, которые должны проходить между кадым выполнением задания.
+	1, 
+    -- ScheduleFreqRelativeInterval - вызов задания по параметру ScheduleFreqInterval каждый месяц. например, 1 - первый, 2 - второй и др.
+	0, 
+    -- ScheduleFreqRecurrenceFactor - количество недель или месяцев между запланированным выполнением задания.
+	0, 
+    -- ScheduleActiveStartDay - дата, с которой можно начать выполнение задания
+	20000101, 
+    -- ScheduleActiveEndDay - дата, до кторой можно выполнять задание.
+	99991231, 
+    -- ScheduleActiveStartTime -- время, с которого можно начать выполнение задания.
+	0, 
+    -- ScheduleActiveEndTime - время, до которого можно начать выполнение задания.
+	235959,
+    -- [Задание расписание запуска] <<
+    -- VersionDate - дата версии. При изменении данных в таблице заполняется автоматически. Используется для определения необходимости обновления настроек существующих задания.
+	CAST(N'2023-10-30T13:53:19.033' AS DateTime),
+    -- TimeoutSec - время в секундах, которое задание может работать. При превышении таймаута задание может быть принудительно завершено.
+	0
+)
+```
+
+Таким образом, по этой настройке будет создано задание **SQLServerMaintenance.ControlTransactionLogUsage** с выполнением скрипта:
+
+```sql
+EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlTransactionLogUsage]
+```
+
+А также запуском раз в минуту.
+
+### Задания по базам данных
+
+Более сложный пример это создание заданийв разрезе баз данных, да еще и с несколькими шагами. Например, для заданий обслуживания.
+
+В этом случае настройка будет такой:
+
+```sql
+INSERT [dbo].[JobTemplates] (
+    [UseSetting], 
+    [Enable], 
+    [ApplyTemplateQuery], 
+    [Name], 
+    [Description], 
+    [JobAction], 
+    [ScheduleEnable], 
+    [ScheduleFreqType], 
+    [ScheduleFreqInterval], 
+    [ScheduleFreqSubdayType], 
+    [ScheduleFreqSubdayInterval],
+    [ScheduleFreqRelativeInterval], 
+    [ScheduleFreqRecurrenceFactor],
+    [ScheduleActiveStartDay], 
+    [ScheduleActiveEndDay], 
+    [ScheduleActiveStartTime], 
+    [ScheduleActiveEndTime], 
+    [VersionDate], 
+    [TimeoutSec]) 
+VALUES (
+    -- UseSetting - признак использования настройки.
+    -- Если выключена, то задания по ней не будут создаваться
+    -- или обновляться.
+	1, 
+    -- Enable - задание включено. Если выключено, то задания будут созданы,
+    -- но в выключенном состоянии.
+    -- В этом примере задания создаются, но в выключенные.
+	0, 
+    -- ApplyTemplateQuery - шаблон запроса для формирования заданий в разрезе баз данных.
+    -- В этом случае задан запрос с обязательным полем "DatabaseName",
+    -- который возвращет все базы на сервере, кроме системных.
+N'SELECT
+	[name] AS [DatabaseName]
+FROM sys.databases
+WHERE NOT [name] IN (''master'', ''msdb'', ''model'', ''tempdb'')',
+    -- Name - имя задания.
+    -- В имени используется шаблон замены '{DatabaseName}',
+    -- чтобы имя задания изменялось под базу данных.
+	N'SQLServerMaintenance.FullMaintenance_{DatabaseName}',
+    -- Description - описание задания.
+    -- В имени используется шаблон замены '{DatabaseName}',
+    -- чтобы имя задания изменялось под базу данных.
+	N'Полное обслуживание базы данных {DatabaseName}',
+    -- JobAction - действие задания. В данном примере используется описание шагов.
+    -- Описание делается в виде XML, где в главном элементе "steps" задается для каждого шага элемент "step с полями:
+    --  > Name - имя шага
+    --  > Script - TSQL скрипт для запуске на шаге.
+    N'<steps>
+        <step>
+            <name>Index Maintenance</name>
+            <script>
+    EXECUTE [SQLServerMaintenance].[dbo].[sp_IndexMaintenance] 
+    @databaseName = ''{DatabaseName}''
+            </script>
+        </step>
+        <step>
+            <name>Statistic Maintenance</name>
+            <script>
+    EXECUTE [SQLServerMaintenance].[dbo].[sp_StatisticMaintenance] 
+    @databaseName = ''{DatabaseName}''
+            </script>
+        </step>
+    </steps>',
+    -- [Задание расписание запуска] <<
+    -- Эти поля содержат настройки для задания расписания запуска.
+    -- Подробнее можно узнать в официальной документации:
+    -- https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-add-schedule-transact-sql?view=sql-server-ver16
+    -- Ниже приведено краткое описание.
+    -- Также для удобства можно задать расписание у задания через SSMS, а значения параметров получить через формирование скрипта CREATE.
+    -- [Задание расписание запуска] <<
+    -- ScheduleEnable - расписание используется.
+	1, 
+    -- ScheduleFreqType - тип частоты выполнения задания. Например, 4 - это ежедневно, 8 - еженедельно, 16 - ежемесячно, 1 - разовое выполнение.
+	4, 
+    -- ScheduleFreqInterval - дни, в течении которых выполняется задание. Например, 4 - ежедневно, 8 ежемесячно, 1 - не используется и т.д.
+	1, 
+    -- ScheduleFreqSubdayType - определяет единицу измерения для параметра ScheduleFreqInterval. Например, 2 - секунды, 4 - минуты, 8 - часы.
+	1, 
+    -- ScheduleFreqSubdayInterval - количество периодов ScheduleFreqSubdayType, которые должны проходить между кадым выполнением задания.
+	60, 
+    -- ScheduleFreqRelativeInterval - вызов задания по параметру ScheduleFreqInterval каждый месяц. например, 1 - первый, 2 - второй и др.
+	0, 
+    -- ScheduleFreqRecurrenceFactor - количество недель или месяцев между запланированным выполнением задания.
+	0, 
+    -- ScheduleActiveStartDay - дата, с которой можно начать выполнение задания
+	20231021, 
+    -- ScheduleActiveEndDay - дата, до кторой можно выполнять задание.
+	99991231, 
+    -- ScheduleActiveStartTime -- время, с которого можно начать выполнение задания.
+	200000, 
+    -- ScheduleActiveEndTime - время, до которого можно начать выполнение задания.
+	235959,
+    -- [Задание расписание запуска] <<
+    -- VersionDate - дата версии. При изменении данных в таблице заполняется автоматически. Используется для определения необходимости обновления настроек существующих задания.
+	CAST(N'2023-10-30T13:53:19.033' AS DateTime),
+    -- TimeoutSec - время в секундах, которое задание может работать. При превышении таймаута задание может быть принудительно завершено.
+    -- В данном примере это 3 часа.
+	10800
+)
+```
+
+Данная настройка для каждой базы на сервере (кроме системных) создает задание вида "SQLServerMaintenance.FullMaintenance_<ИмяБазы>" с двумя шагами:
+
+    * Index Maintenance - обслуживание индексов.
+    * Statistic Maintenance - обслуживание статистики.
+
+Запуск задания выполняется в 20:00 по времени сервера ежедневно. При этом изначально задание создается выключенным.
+
+Шаги задания задаются в виде XML:
+
+```XML
+<steps>
+        <step>
+            <name>Index Maintenance</name>
+            <script>
+EXECUTE [SQLServerMaintenance].[dbo].[sp_IndexMaintenance] 
+    @databaseName = '{DatabaseName}'
+            </script>
+        </step>
+        <step>
+            <name>Statistic Maintenance</name>
+            <script>
+EXECUTE [SQLServerMaintenance].[dbo].[sp_StatisticMaintenance] 
+    @databaseName = '{DatabaseName}'
+            </script>
+        </step>
+    </steps>
+```
+
+В главном элементе "steps" задается для каждого шага элемент "step с полями:
+
+* **Name** - имя шага
+* **Script** - TSQL скрипт для запуске на шаге.
+
+Таким образом, можно автоматизировать настройку базового обслуживания для новых и старых баз. А особые обслуживания можно настраивать по доп. условиям в новых настройках.
+
+### Создание и обновление заданий по настройкам
+
+Для того, чтобы создать / обновить задания по добавленным настройкам нужно вызывать процедуру **sp_CreateOrUpdateJobsBySettings**.
+
+```sql
+EXECUTE [dbo].[sp_CreateOrUpdateJobsBySettings] 
+```
+
+В целом, ее запуск также можно настроить в задании раз в день или чаще, в зависимости от требований.
+
+## Контроль таймаута выполнения заданий
+
+Выше в шаблоне задавались настройки таймаута для заданий. Но для конкретных заданий таумаут выполнения задается в таблице **JobTimeouts**, в виде:
+
+* **JobName** - имя задания.
+* **TimeoutSec** - таймаут выполнения в секундах.
+
+Для контроля выполнения используется задание **SQLServerMaintenance.ControlJobsExecutionTimeout**, которое создается автоматически из шаблонов (см. выше). Также контроль можно выполнять вручную, запуская процедуру:
+
+```sql
+EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlJobsExecutionTimeout] 
+```
+
+Если время выполнения задания превышает установленное значение, то соединение с базой данных этого задания будет принудительно завершено.
