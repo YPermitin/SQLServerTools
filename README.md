@@ -39,6 +39,7 @@
 | 27 | [Track-Data-Changes](SQL-Server-Track-Data-Changes) | Механизмы отслеживания изменения данных. |
 | 28 | [Security](SQL-Server-Security) | Безопасность, управление доступом и связанные темы. |
 | 29 | [SQLCLR](SQL-Server-SQLCLR) | Материалы по созданию расширений для SQL Server на базе SQLCLR. |
+| 30 | [Docker](SQL-Server-Docker) | SQL Server и Docker |
 
 ## Полезные ссылки
 

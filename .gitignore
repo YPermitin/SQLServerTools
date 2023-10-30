@@ -351,3 +351,8 @@ MigrationBackup/
 
 # Config files
 **/appsettings.json
+
+# Docker volumes
+**/fs/volumes/sqlserver/data
+**/fs/volumes/sqlserver/log
+**/fs/volumes/sqlserver/secrets
