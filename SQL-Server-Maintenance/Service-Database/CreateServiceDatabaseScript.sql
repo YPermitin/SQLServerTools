@@ -45,7 +45,7 @@ CREATE TABLE [dbo].[MaintenanceActionsLog](
  CONSTRAINT [PK__Maintena__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -82,7 +82,7 @@ CREATE CLUSTERED INDEX [UK_AlwaysOnReplicaMissingStats_CreatedDate_DatabaseName_
 	[CreatedDate] ASC,
 	[DatabaseName] ASC,
 	[TableName] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[changelog](
@@ -98,7 +98,7 @@ CREATE TABLE [dbo].[changelog](
 PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -129,7 +129,7 @@ CREATE TABLE [dbo].[ConnectionsStatistic](
 (
 	[id] ASC,
 	[Period] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -148,7 +148,7 @@ CREATE TABLE [dbo].[DatabaseObjectsState](
  CONSTRAINT [PK__DatabaseObjectsState__3214EC074E078F4E] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -171,7 +171,7 @@ CREATE UNIQUE CLUSTERED INDEX [UK_DatabasesTablesStatistic_Period_DatabaseName_T
 	[DatabaseName] ASC,
 	[SchemaName] ASC,
 	[TableName] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 CREATE TABLE [dbo].[JobTemplates](
@@ -198,7 +198,7 @@ CREATE TABLE [dbo].[JobTemplates](
  CONSTRAINT [PK_JobTemplates] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -209,7 +209,7 @@ CREATE TABLE [dbo].[JobTimeouts](
  CONSTRAINT [PK_JobTimeouts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -221,7 +221,7 @@ CREATE TABLE [dbo].[LogTransactionControlSettings](
  CONSTRAINT [PK_LogTransactionControlSettings] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 
@@ -237,7 +237,7 @@ CREATE TABLE [dbo].[MaintenanceActionsToRun](
  CONSTRAINT [PK_MaintenanceActionsToRun] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
@@ -251,43 +251,46 @@ CREATE TABLE [dbo].[MaintenanceIndexPriority](
  CONSTRAINT [PK_MaintenanceIndexPriority] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+
 SET IDENTITY_INSERT [dbo].[changelog] ON 
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (1, 2, N'0', N'Empty schema found: dbo.', N'dbo', N'', N'sa', CAST(N'2023-10-30T13:53:18.753' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (1, 2, N'0', N'Empty schema found: dbo.', N'dbo', N'', N'sa', CAST(N'2023-10-31T21:52:06.830' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (2, 0, N'1.0.0.0', N'Initializing (71 ms)', N'V1_0_0_0__Initializing.sql', N'E29CBD2E2588AD0496EAD6531C63CC7F', N'sa', CAST(N'2023-10-30T13:53:18.853' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (2, 0, N'1.0.0.0', N'Initializing (74 ms)', N'V1_0_0_0__Initializing.sql', N'E29CBD2E2588AD0496EAD6531C63CC7F', N'sa', CAST(N'2023-10-31T21:52:06.937' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (3, 0, N'1.0.0.1', N'FixView CommonStatsByDay (7 ms)', N'V1_0_0_1__FixView_CommonStatsByDay.sql', N'E148A3049C07BE2692277AAF1FF1EEAC', N'sa', CAST(N'2023-10-30T13:53:18.867' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (3, 0, N'1.0.0.1', N'FixView CommonStatsByDay (7 ms)', N'V1_0_0_1__FixView_CommonStatsByDay.sql', N'E148A3049C07BE2692277AAF1FF1EEAC', N'sa', CAST(N'2023-10-31T21:52:06.947' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (4, 0, N'1.0.0.2', N'MaintainanceActionLog AddTranLogSizeInfo (22 ms)', N'V1_0_0_2__MaintainanceActionLog_AddTranLogSizeInfo.sql', N'A8B95D18EE751AC15A2DFF3601538ADE', N'sa', CAST(N'2023-10-30T13:53:18.890' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (4, 0, N'1.0.0.2', N'MaintainanceActionLog AddTranLogSizeInfo (19 ms)', N'V1_0_0_2__MaintainanceActionLog_AddTranLogSizeInfo.sql', N'A8B95D18EE751AC15A2DFF3601538ADE', N'sa', CAST(N'2023-10-31T21:52:06.967' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (5, 0, N'1.0.0.3', N'IndexMaintenance FixQueryRetriveIndexListForMaintenance (14 ms)', N'V1_0_0_3__IndexMaintenance_FixQueryRetriveIndexListForMaintenance.sql', N'55E540697C7AFFEDB68D8FC815091F61', N'sa', CAST(N'2023-10-30T13:53:18.907' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (5, 0, N'1.0.0.3', N'IndexMaintenance FixQueryRetriveIndexListForMaintenance (13 ms)', N'V1_0_0_3__IndexMaintenance_FixQueryRetriveIndexListForMaintenance.sql', N'55E540697C7AFFEDB68D8FC815091F61', N'sa', CAST(N'2023-10-31T21:52:06.983' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (6, 0, N'1.0.0.4', N'TransactionLogControl AddTableWithSettingsAndProc (23 ms)', N'V1_0_0_4__TransactionLogControl_AddTableWithSettingsAndProc.sql', N'655D9D4645CBA6710081AB9846140A0F', N'sa', CAST(N'2023-10-30T13:53:18.930' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (6, 0, N'1.0.0.4', N'TransactionLogControl AddTableWithSettingsAndProc (20 ms)', N'V1_0_0_4__TransactionLogControl_AddTableWithSettingsAndProc.sql', N'655D9D4645CBA6710081AB9846140A0F', N'sa', CAST(N'2023-10-31T21:52:07.003' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (7, 0, N'1.0.0.5', N'IndexMaintenance AddSupportIndexReorganizeWithoutPageLocks copy (27 ms)', N'V1_0_0_5__IndexMaintenance_AddSupportIndexReorganizeWithoutPageLocks copy.sql', N'E22174E62CA8468BF1AA629DBDEA3CB3', N'sa', CAST(N'2023-10-30T13:53:18.960' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (7, 0, N'1.0.0.5', N'IndexMaintenance AddSupportIndexReorganizeWithoutPageLocks copy (27 ms)', N'V1_0_0_5__IndexMaintenance_AddSupportIndexReorganizeWithoutPageLocks copy.sql', N'E22174E62CA8468BF1AA629DBDEA3CB3', N'sa', CAST(N'2023-10-31T21:52:07.033' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (8, 0, N'1.0.0.6', N'IndexMaintenance ImproveReorganizeIndexes (13 ms)', N'V1_0_0_6__IndexMaintenance_ImproveReorganizeIndexes.sql', N'D0D4BA4F63B28FDFDFA3847ACD5D4C29', N'sa', CAST(N'2023-10-30T13:53:18.973' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (8, 0, N'1.0.0.6', N'IndexMaintenance ImproveReorganizeIndexes (14 ms)', N'V1_0_0_6__IndexMaintenance_ImproveReorganizeIndexes.sql', N'D0D4BA4F63B28FDFDFA3847ACD5D4C29', N'sa', CAST(N'2023-10-31T21:52:07.050' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (9, 0, N'1.0.0.7', N'IndexMaintenance ImproveReorganizeIndexes v2 (13 ms)', N'V1_0_0_7__IndexMaintenance_ImproveReorganizeIndexes_v2.sql', N'36937240442EEBAB330DA107755213C1', N'sa', CAST(N'2023-10-30T13:53:18.990' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (9, 0, N'1.0.0.7', N'IndexMaintenance ImproveReorganizeIndexes v2 (12 ms)', N'V1_0_0_7__IndexMaintenance_ImproveReorganizeIndexes_v2.sql', N'36937240442EEBAB330DA107755213C1', N'sa', CAST(N'2023-10-31T21:52:07.063' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (10, 0, N'1.0.0.8', N'Backup AddProcBackupDatabase (9 ms)', N'V1_0_0_8__Backup_AddProcBackupDatabase.sql', N'8D060910FFC1AE7D67B7A6758F8DEE94', N'sa', CAST(N'2023-10-30T13:53:19.000' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (10, 0, N'1.0.0.8', N'Backup AddProcBackupDatabase (10 ms)', N'V1_0_0_8__Backup_AddProcBackupDatabase.sql', N'8D060910FFC1AE7D67B7A6758F8DEE94', N'sa', CAST(N'2023-10-31T21:52:07.073' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (11, 0, N'1.0.0.9', N'Backup AddProcClearFiles (6 ms)', N'V1_0_0_9__Backup_AddProcClearFiles.sql', N'A8A4CA79BA41288175A164A32D606AD0', N'sa', CAST(N'2023-10-30T13:53:19.007' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (11, 0, N'1.0.0.9', N'Backup AddProcClearFiles (7 ms)', N'V1_0_0_9__Backup_AddProcClearFiles.sql', N'A8A4CA79BA41288175A164A32D606AD0', N'sa', CAST(N'2023-10-31T21:52:07.083' AS DateTime), 1)
 GO
-INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (12, 0, N'1.0.0.10', N'Jobs AddSettingsAndControlFunctions (28 ms)', N'V1_0_0_10__Jobs_AddSettingsAndControlFunctions.sql', N'F324EE0D243F0DE84AD59E01172872E1', N'sa', CAST(N'2023-10-30T13:53:19.037' AS DateTime), 1)
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (12, 0, N'1.0.0.10', N'Jobs AddSettingsAndControlFunctions (26 ms)', N'V1_0_0_10__Jobs_AddSettingsAndControlFunctions.sql', N'882BB44E8B3B6D443958089B08BCA066', N'sa', CAST(N'2023-10-31T21:52:07.113' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (13, 0, N'1.0.0.11', N'Refactoring (24 ms)', N'V1_0_0_11__Refactoring.sql', N'F32BC5B3DCA7EFEB049F1C7A032C30F3', N'sa', CAST(N'2023-10-31T21:52:07.140' AS DateTime), 1)
 GO
 SET IDENTITY_INSERT [dbo].[changelog] OFF
 GO
+
 SET IDENTITY_INSERT [dbo].[JobTemplates] ON 
 GO
-
-INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (1, 1, 1, NULL, N'SQLServerMaintenance.ControlTransactionLogUsage', N'Контроль заполнения лога транзакций', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlTransactionLogUsage] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 0)
+INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (1, 1, 1, NULL, N'SQLServerMaintenance.ControlTransactionLogUsage', N'Контроль заполнения лога транзакций', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlTransactionLogUsage] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-31T21:52:07.110' AS DateTime), 0)
 GO
-INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (2, 1, 1, NULL, N'SQLServerMaintenance.ControlJobsExecutionTimeout', N'Контроль таймаутов выполнения заданий', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlJobsExecutionTimeout] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 0)
+INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (2, 1, 1, NULL, N'SQLServerMaintenance.ControlJobsExecutionTimeout', N'Контроль таймаутов выполнения заданий', N'EXECUTE [SQLServerMaintenance].[dbo].[sp_ControlJobsExecutionTimeout] ', 1, 4, 1, 4, 1, 0, 0, 20000101, 99991231, 0, 235959, CAST(N'2023-10-31T21:52:07.110' AS DateTime), 0)
 GO
 INSERT [dbo].[JobTemplates] ([Id], [UseSetting], [Enable], [ApplyTemplateQuery], [Name], [Description], [JobAction], [ScheduleEnable], [ScheduleFreqType], [ScheduleFreqInterval], [ScheduleFreqSubdayType], [ScheduleFreqSubdayInterval], [ScheduleFreqRelativeInterval], [ScheduleFreqRecurrenceFactor], [ScheduleActiveStartDay], [ScheduleActiveEndDay], [ScheduleActiveStartTime], [ScheduleActiveEndTime], [VersionDate], [TimeoutSec]) VALUES (3, 1, 0, N'SELECT
 	[name] AS [DatabaseName]
@@ -307,7 +310,9 @@ EXECUTE [SQLServerMaintenance].[dbo].[sp_StatisticMaintenance]
    @databaseName = ''{DatabaseName}''
 		</script>
 	</step>
-</steps>', 1, 4, 1, 1, 60, 0, 0, 20231021, 99991231, 200000, 235959, CAST(N'2023-10-30T13:53:19.033' AS DateTime), 10800)
+</steps>', 1, 4, 1, 1, 60, 0, 0, 20231021, 99991231, 200000, 235959, CAST(N'2023-10-31T21:52:07.110' AS DateTime), 10800)
+GO
+SET IDENTITY_INSERT [dbo].[JobTemplates] OFF
 GO
 
 CREATE NONCLUSTERED INDEX [UK_Table_Object_Period] ON [dbo].[DatabaseObjectsState]
@@ -316,7 +321,7 @@ CREATE NONCLUSTERED INDEX [UK_Table_Object_Period] ON [dbo].[DatabaseObjectsStat
 	[TableName] ASC,
 	[Object] ASC,
 	[Period] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
 CREATE UNIQUE NONCLUSTERED INDEX [IX_LogTransactionControlSettings_DatabaseName] ON [dbo].[LogTransactionControlSettings]
@@ -331,7 +336,7 @@ CREATE NONCLUSTERED INDEX [UK_RunDate_Table_Index_Period_Operation] ON [dbo].[Ma
 	[DatabaseName] ASC,
 	[TableName] ASC,
 	[IndexName] ASC
-) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 90, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[changelog] ADD  DEFAULT (getdate()) FOR [installed_on]
 GO
@@ -503,7 +508,6 @@ BEGIN
 		VALUES (@jobName, @timeoutSec)
 	END
 END
-
 GO
 
 CREATE PROCEDURE [dbo].[sp_AdvancedPrint]
@@ -639,7 +643,6 @@ BEGIN
 
 	COMMIT TRAN;
 END
-
 GO
 
 CREATE PROCEDURE [dbo].[sp_BackupDatabase]
@@ -859,6 +862,14 @@ BEGIN
 			ON sja.job_id = sj.job_id
 		INNER JOIN [dbo].[JobTimeouts] jtime
 			ON jtime.JobName = sj.[name]
+		INNER JOIN (
+			SELECT
+				[job_id],
+				MAX([session_id]) AS [session_id]
+			FROM [msdb].[dbo].[sysjobactivity]
+			GROUP BY [job_id]) ls
+			ON ls.job_id = sja.job_id
+				AND ls.session_id = sja.session_id
 	WHERE jtime.TimeoutSec > 0
 		AND DATEDIFF(SECOND, sja.[start_execution_date], GETDATE()) > jtime.TimeoutSec;
 	OPEN timeout_jobs_cursor;
@@ -1542,7 +1553,6 @@ BEGIN
 
 	EndSave:
 END
-
 GO
 
 CREATE PROCEDURE [dbo].[sp_FillConnectionsStatistic]
@@ -1612,13 +1622,14 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[sp_FillDatabaseObjectsState]
-	@databaseName sysname,
-	@monitoringDatabaseName sysname = 'SQLServerMaintenance'
+	@databaseName sysname
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
+	DECLARE 
+		@msg nvarchar(max),
+		@monitoringDatabaseName sysname = DB_NAME();
 
     IF DB_ID(@databaseName) IS NULL
 	BEGIN
@@ -1721,14 +1732,15 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[sp_FixMissingStatisticOnAlwaysOnReplica]
-	@databaseName sysname = null,
-	@useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMaintenance'
+	@databaseName sysname = null
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
+	DECLARE 
+		@msg nvarchar(max),
+		@monitoringDatabaseName sysname = DB_NAME(),
+		@useMonitoringDatabase bit = 1;
 
     IF @databaseName IS NOT NULL AND DB_ID(@databaseName) IS NULL
     BEGIN
@@ -1824,7 +1836,6 @@ BEGIN
 END
 GO
 
-GO
 CREATE PROCEDURE [dbo].[sp_GetCurrentResumableIndexRebuilds] 
 	@databaseName sysname
 AS
@@ -1910,8 +1921,6 @@ CREATE PROCEDURE [dbo].[sp_IndexMaintenance]
     @useOnlineIndexRebuild int = 0,
 	@useResumableIndexRebuildIfAvailable int = 0,
     @maxIndexSizeForReorganizingPages int = 6553600,
-    @useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMaintenance',
     @usePreparedInformationAboutObjectsStateIfExists bit = 0,
     @ConditionTableName nvarchar(max) = 'LIKE ''%''',
     @ConditionIndexName nvarchar(max) = 'LIKE ''%''',
@@ -1937,7 +1946,9 @@ BEGIN
 			-- Список исключенных из обслуживания индексов.
 			-- Например, если они были обслужены через механизм возобновляемых перестроений,
 			-- еще до запуска основного обслуживания
-			@excludeIndexes XML;
+			@excludeIndexes XML,
+			@monitoringDatabaseName sysname = DB_NAME(),
+			@useMonitoringDatabase bit = 1;
 
 	IF(@fillFactorForIndex = 0)
 	BEGIN
@@ -2691,16 +2702,12 @@ BEGIN
 	WHERE [Id] = @Id
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_SaveDatabasesTablesStatistic]    Script Date: 30.10.2023 13:57:06 ******/
 
-GO
-
-GO
 CREATE PROCEDURE [dbo].[sp_SaveDatabasesTablesStatistic]
 AS
 BEGIN
 	SET NOCOUNT ON;
-	;
+	SET QUOTED_IDENTIFIER ON;
 
 	IF OBJECT_ID('tempdb..#tableSizeResult') IS NOT NULL
 		DROP TABLE #tableSizeResult;
@@ -2894,12 +2901,14 @@ CREATE PROCEDURE [dbo].[sp_StatisticMaintenance]
 	@timeFrom TIME = '00:00:00',
 	@timeTo TIME = '23:59:59',
 	@mode int = 0,
-	@ConditionTableName nvarchar(max) = 'LIKE ''%''',
-	@useMonitoringDatabase bit = 1,
-	@monitoringDatabaseName sysname = 'SQLServerMaintenance'
+	@ConditionTableName nvarchar(max) = 'LIKE ''%'''
 AS
 BEGIN
 	SET NOCOUNT ON;
+
+	DECLARE 			
+		@monitoringDatabaseName sysname = DB_NAME(),
+		@useMonitoringDatabase bit = 1;
 
 	IF(@mode = 0)
 	BEGIN
@@ -2908,8 +2917,6 @@ BEGIN
 		  ,@timeFrom
 		  ,@timeTo
 		  ,@ConditionTableName
-		  ,@useMonitoringDatabase
-		  ,@monitoringDatabaseName
 	END ELSE IF(@mode = 1)
 	BEGIN
 		EXECUTE [dbo].[sp_StatisticMaintenance_Detailed] 
@@ -2917,8 +2924,6 @@ BEGIN
 		  ,@timeFrom
 		  ,@timeTo
 		  ,@ConditionTableName
-		  ,@useMonitoringDatabase
-		  ,@monitoringDatabaseName
 	END
 
     RETURN 0
@@ -2929,14 +2934,15 @@ CREATE PROCEDURE [dbo].[sp_StatisticMaintenance_Detailed]
 	@databaseName sysname,
 	@timeFrom TIME = '00:00:00',
 	@timeTo TIME = '23:59:59',	
-	@ConditionTableName nvarchar(max) = 'LIKE ''%''',
-	@useMonitoringDatabase bit = 1,
-	@monitoringDatabaseName sysname = 'SQLServerMaintenance'
+	@ConditionTableName nvarchar(max) = 'LIKE ''%'''
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
+	DECLARE 
+		@msg nvarchar(max),
+		@monitoringDatabaseName sysname = DB_NAME(),
+		@useMonitoringDatabase bit = 1;;
 
 	IF DB_ID(@databaseName) IS NULL
 	BEGIN
@@ -3094,14 +3100,15 @@ CREATE PROCEDURE [dbo].[sp_StatisticMaintenance_Sampled]
 	@databaseName sysname,
 	@timeFrom TIME = '00:00:00',
 	@timeTo TIME = '23:59:59',
-	@ConditionTableName nvarchar(max) = 'LIKE ''%''',
-	@useMonitoringDatabase bit = 1,
-	@monitoringDatabaseName sysname = 'SQLServerMaintenance'
+	@ConditionTableName nvarchar(max) = 'LIKE ''%'''
 AS
 BEGIN
 	SET NOCOUNT ON;
 
-	DECLARE @msg nvarchar(max);
+	DECLARE 
+		@msg nvarchar(max),
+		@monitoringDatabaseName sysname = DB_NAME(),
+		@useMonitoringDatabase bit = 1;;
 
 	IF DB_ID(@databaseName) IS NULL
 	BEGIN
@@ -3367,5 +3374,6 @@ BEGIN
 			ON jt.Id = i.Id
 END
 GO
+
 ALTER TABLE [dbo].[JobTemplates] ENABLE TRIGGER [tg_JobTemplate_AfterUpdate]
 GO
