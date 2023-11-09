@@ -258,10 +258,19 @@ EXECUTE [SQLServerMaintenance].[dbo].[sp_StatisticMaintenance]
 Для того, чтобы создать / обновить задания по добавленным настройкам нужно вызывать процедуру **sp_CreateOrUpdateJobsBySettings**.
 
 ```sql
-EXECUTE [dbo].[sp_CreateOrUpdateJobsBySettings] 
+EXECUTE [dbo].[sp_CreateOrUpdateJobsBySettings]
 ```
 
 В целом, ее запуск также можно настроить в задании раз в день или чаще, в зависимости от требований.
+
+По умолчанию задания создаются, если их нет и обновляются при наличии шаблона новой версии. Но можно принудительно обновить задания по текущим шаблонам:
+
+```sql
+EXECUTE [dbo].[sp_CreateOrUpdateJobsBySettings]
+    @force = 1
+```
+
+Может понадобиться для восстановления изначального вида уже созданных заданий.
 
 ## Контроль таймаута выполнения заданий
 

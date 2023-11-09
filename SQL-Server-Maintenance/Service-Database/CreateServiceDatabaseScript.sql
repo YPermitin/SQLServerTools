@@ -283,6 +283,8 @@ INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [check
 GO
 INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (13, 0, N'1.0.0.11', N'Refactoring (24 ms)', N'V1_0_0_11__Refactoring.sql', N'F32BC5B3DCA7EFEB049F1C7A032C30F3', N'sa', CAST(N'2023-10-31T21:52:07.140' AS DateTime), 1)
 GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (14, 0, N'1.0.0.12', N'Jobs FixCreateOrUPdateJobsBySettingsProc (72 ms)', N'V1_0_0_12__Jobs_FixCreateOrUPdateJobsBySettingsProc.sql', N'830D32CAB88A1ACC673F515AA8D5B96D', N'sa', CAST(N'2023-11-09T18:58:14.717' AS DateTime), 1)
+GO
 SET IDENTITY_INSERT [dbo].[changelog] OFF
 GO
 
@@ -1175,6 +1177,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[sp_CreateOrUpdateJobsBySettings]
+	@force bit = 0
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -1282,7 +1285,7 @@ BEGIN
 			BEGIN
 				SET @jobName = REPLACE(@Name, '{DatabaseName}', @currentDatabaseName);
 				SET @jobDescription = REPLACE(@Description, '{DatabaseName}', @currentDatabaseName);
-				SET @JobAction = REPLACE(@JobAction, '{DatabaseName}', @currentDatabaseName);
+				DECLARE @currentJobAction nvarchar(max) = REPLACE(@JobAction, '{DatabaseName}', @currentDatabaseName);
 
 				SELECT
 					@jobAlreadyExists = 1,
@@ -1293,7 +1296,7 @@ BEGIN
 
 				-- Если задание уже существует, но в настройках содержится более новая версия,
 				-- то удаляем старое задание и создаем заново
-				IF(@jobAlreadyExists = 1 AND @VersionDate > @currentjobVersionDate)
+				IF(@jobAlreadyExists = 1 AND (@force = 1 OR @VersionDate > @currentjobVersionDate))
 				BEGIN
 					EXEC msdb.dbo.sp_delete_job 
 						@job_id = @currentJobId, 
@@ -1308,7 +1311,7 @@ BEGIN
 					  ,@jobDescription = @jobDescription
 					  ,@jobEnabled = @Enable
 					  ,@databaseName = @currentDatabaseName
-					  ,@jobAction = @JobAction
+					  ,@jobAction = @currentJobAction
 					  ,@scheduleEnabled = @ScheduleEnable
 					  ,@scheduleFreqType = @ScheduleFreqType
 					  ,@scheduleFreqInterval = @ScheduleFreqInterval
@@ -1337,7 +1340,7 @@ BEGIN
 			
 			-- Если задание уже существует, но в настройках содержится более новая версия,
 			-- то удаляем старое задание и создаем заново
-			IF(@jobAlreadyExists = 1 AND @VersionDate > @currentjobVersionDate)
+			IF(@jobAlreadyExists = 1 AND (@force = 1 OR @VersionDate > @currentjobVersionDate))
 			BEGIN
 				EXEC msdb.dbo.sp_delete_job 
 					@job_id = @currentJobId, 
