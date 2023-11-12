@@ -285,6 +285,8 @@ INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [check
 GO
 INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (14, 0, N'1.0.0.12', N'Jobs FixCreateOrUPdateJobsBySettingsProc (72 ms)', N'V1_0_0_12__Jobs_FixCreateOrUPdateJobsBySettingsProc.sql', N'830D32CAB88A1ACC673F515AA8D5B96D', N'sa', CAST(N'2023-11-09T18:58:14.717' AS DateTime), 1)
 GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (1014, 0, N'1.0.0.13', N'Jobs FixCreateOrUPdateJobsBySettingsProcV2 (33 ms)', N'V1_0_0_13__Jobs_FixCreateOrUPdateJobsBySettingsProcV2.sql', N'20830460B9482F8F0E072F0258C2C246', N'sa', CAST(N'2023-11-10T10:20:16.897' AS DateTime), 1)
+GO
 SET IDENTITY_INSERT [dbo].[changelog] OFF
 GO
 
@@ -1287,6 +1289,10 @@ BEGIN
 				SET @jobDescription = REPLACE(@Description, '{DatabaseName}', @currentDatabaseName);
 				DECLARE @currentJobAction nvarchar(max) = REPLACE(@JobAction, '{DatabaseName}', @currentDatabaseName);
 
+				SET @jobAlreadyExists = 0;
+				SET @currentJobId = NULL;
+				SET @currentjobVersionDate = NULL;
+
 				SELECT
 					@jobAlreadyExists = 1,
 					@currentJobId = sj.job_id,
@@ -1330,7 +1336,11 @@ BEGIN
 			END
 			CLOSE job_templates_databases_cursor;  
 			DEALLOCATE job_templates_databases_cursor;
-		END ELSE BEGIN			
+		END ELSE BEGIN		
+			SET @jobAlreadyExists = 0;
+			SET @currentJobId = NULL;
+			SET @currentjobVersionDate = NULL;
+
 			SELECT
 				@jobAlreadyExists = 1,
 				@currentJobId = sj.job_id,
