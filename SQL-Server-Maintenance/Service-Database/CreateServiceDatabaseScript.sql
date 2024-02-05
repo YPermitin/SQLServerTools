@@ -2498,7 +2498,9 @@ BEGIN
         if(@OnlineRebuildSupport = 1)
         BEGIN
             SET @CommandSpecial = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
-                + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '',ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';        
+                + N'' REBUILD WITH (FILLFACTOR='' + CAST(@fillFactorForIndex AS nvarchar(10)) + '', MAXDOP='' + CAST(@MaxDop AS nvarchar(10)) + '','' 
+				+ (CASE WHEN @useResumableIndexRebuild > 0 THEN '' RESUMABLE = ON, '' ELSE '''' END) 
+				'' ONLINE = ON (WAIT_AT_LOW_PRIORITY ( MAX_DURATION = ' AS nvarchar(max)) + CAST(@onlineRebuildWaitMinutes  AS nvarchar(max)) + CAST(' MINUTES, ABORT_AFTER_WAIT = ' AS nvarchar(max)) + CAST(@abortAfterWaitOnlineRebuil  AS nvarchar(max)) + CAST(')))'';
         END ELSE
         BEGIN
             SET @Command = N''ALTER INDEX '' + @IndexName + N'' ON '' + @SchemaName + N''.'' + @ObjectName
