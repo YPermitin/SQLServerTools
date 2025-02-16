@@ -14,7 +14,17 @@
 
 ## Функциональность
 
+Расширение SQLCLR позволяет выполнять запросы к ClickHouse любого характера:
 
+* Запрос без возврата результата (DDL-операции, DML-операции и другое).
+* Выполнение запросов SELECT несколькими способами:
+
+	1. Получение единственного значения.
+	2. Выполнение простого запроса с возвратом единственной колонки в виде строки. Можно возвращать несколько значений, если выбрать кортеж. Последний будет преобразован к JSON.
+	3. Выполнение запросов с сохранением результата во временные таблицы (локальную или глобальную).
+	4. Выполнение операций BULK INSERT в таблицу ClickHouse.
+
+Примеры работы запросов можно посмотреть в конце этой документации.
 
 ## Окружение для разработки
 
@@ -310,4 +320,39 @@ CREATE TABLE IF NOT EXISTS SimpleTable
 ENGINE = MergeTree
 ORDER BY Id;
 '
+```
+
+* Выполнение операции BULK INSERT в таблицу ClickHouse. Отправляется набор данных из временной таблицы.
+
+```sql
+SET NOCOUNT ON;
+
+-- Создаем временную таблицу
+IF(OBJECT_ID('tempdb..#rowsForInsert') IS NOT NULL)
+	DROP TABLE #rowsForInsert;
+CREATE TABLE #rowsForInsert
+(
+    [Id] bigint,
+    [Period] datetime2(0),
+    [Name] nvarchar(max)
+);
+
+-- Заполняем набор данных
+WITH x AS (SELECT n FROM (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) v(n))
+INSERT INTO #rowsForInsert
+SELECT 
+	ROW_NUMBER() OVER (ORDER BY (SELECT NULL)),
+	GETDATE(),
+	'Value ' + CAST((ROW_NUMBER() OVER (ORDER BY (SELECT NULL))) as nvarchar(max))
+FROM x ones, x tens, x hundreds, x thousands
+ORDER BY 1
+
+-- Отправляем в ClickHouse
+EXECUTE [PowerSQLCLR].[dbo].[sp_CHExecuteBulkInsertFromTempTable]
+	-- Строка подключения
+	'Host=yy-comp;Port=8123;Username=default;password=;Database=default;',
+	-- Имя временной таблицы с исходными данными
+	'#rowsForInsert',
+	-- Имя таблицы в ClickHouse для BULK INSERT
+	'SimpleTable'
 ```
