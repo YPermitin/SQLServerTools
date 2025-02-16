@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DE8E7D56-8A86-4142-84A7-5CEB3162329F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>YPermitin.SQLCLR.ClickHouseClient</RootNamespace>
+    <AssemblyName>ClickHouseClient</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>9.0</LangVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NodaTime, Version=1.4.0.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NodaTime.1.4.7\lib\net35-Client\NodaTime.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADO\Adapters\ClickHouseDataAdapter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ADO\ClickHouseCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ADO\ClickHouseConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ADO\ClickHouseConnectionFactory.cs" />
+    <Compile Include="ADO\ClickHouseConnectionStringBuilder.cs" />
+    <Compile Include="ADO\ClickHouseDataSource.cs" />
+    <Compile Include="ADO\ClickHouseEnvironment.cs" />
+    <Compile Include="ADO\Feature.cs" />
+    <Compile Include="ADO\Parameters\ClickHouseDbParameter.cs" />
+    <Compile Include="ADO\Parameters\ClickHouseParameterCollection.cs" />
+    <Compile Include="ADO\QueryStats.cs" />
+    <Compile Include="ADO\Readers\ClickHouseDataReader.cs" />
+    <Compile Include="ADO\Readers\ClickHouseRawResult.cs" />
+    <Compile Include="ADO\StreamCallbackContent.cs" />
+    <Compile Include="ClickHouseServerException.cs" />
+    <Compile Include="ClickHouseUriBuilder.cs" />
+    <Compile Include="Constraints\DBDefault.cs" />
+    <Compile Include="Copy\Batch.cs" />
+    <Compile Include="Copy\ClickHouseBulkCopy.cs" />
+    <Compile Include="Copy\RowBinaryFormat.cs" />
+    <Compile Include="Copy\Serializer\BatchSerializer.cs" />
+    <Compile Include="Copy\Serializer\ClickHouseBulkCopySerializationException.cs" />
+    <Compile Include="Copy\Serializer\IBatchSerializer.cs" />
+    <Compile Include="Copy\Serializer\IRowSerializer.cs" />
+    <Compile Include="Copy\Serializer\RowBinarySerializer.cs" />
+    <Compile Include="Copy\Serializer\RowBinaryWithDefaultsSerializer.cs" />
+    <Compile Include="Diagnostic\ActivitySourceHelper.cs" />
+    <Compile Include="FeatureSwitch.cs" />
+    <Compile Include="Formats\ExtendedBinaryReader.cs" />
+    <Compile Include="Formats\ExtendedBinaryWriter.cs" />
+    <Compile Include="Formats\HttpParameterFormatter.cs" />
+    <Compile Include="Formats\PeekableStreamWrapper.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Http\CannedHttpClientFactory.cs" />
+    <Compile Include="Http\DefaultPoolHttpClientFactory.cs" />
+    <Compile Include="Http\IHttpClientFactory.cs" />
+    <Compile Include="Http\SingleConnectionHttpClientFactory.cs" />
+    <Compile Include="IClickHouseCommand.cs" />
+    <Compile Include="IClickHouseConnection.cs" />
+    <Compile Include="IClickHouseDataSource.cs" />
+    <Compile Include="Json\SnakeCaseNamingPolicy.cs" />
+    <Compile Include="Numerics\ClickHouseDecimal.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeSettings.cs" />
+    <Compile Include="Types\AbstractBigIntegerType.cs" />
+    <Compile Include="Types\AbstractDateTimeType.cs" />
+    <Compile Include="Types\AggregateFunctionType.cs" />
+    <Compile Include="Types\ArrayType.cs" />
+    <Compile Include="Types\BooleanType.cs" />
+    <Compile Include="Types\ClickHouseType.cs" />
+    <Compile Include="Types\Date32Type.cs" />
+    <Compile Include="Types\DateTime32Type.cs" />
+    <Compile Include="Types\DateTime64Type.cs" />
+    <Compile Include="Types\DateTimeType.cs" />
+    <Compile Include="Types\DateType.cs" />
+    <Compile Include="Types\Decimal128Type.cs" />
+    <Compile Include="Types\Decimal256Type.cs" />
+    <Compile Include="Types\Decimal32Type.cs" />
+    <Compile Include="Types\Decimal64Type.cs" />
+    <Compile Include="Types\DecimalType.cs" />
+    <Compile Include="Types\Enum16Type.cs" />
+    <Compile Include="Types\Enum8Type.cs" />
+    <Compile Include="Types\EnumType.cs" />
+    <Compile Include="Types\FixedStringType.cs" />
+    <Compile Include="Types\Float32Type.cs" />
+    <Compile Include="Types\Float64Type.cs" />
+    <Compile Include="Types\FloatType.cs" />
+    <Compile Include="Types\Grammar\Parser.cs" />
+    <Compile Include="Types\Grammar\SyntaxTreeNode.cs" />
+    <Compile Include="Types\Grammar\Tokenizer.cs" />
+    <Compile Include="Types\Int128Type.cs" />
+    <Compile Include="Types\Int16Type.cs" />
+    <Compile Include="Types\Int256Type.cs" />
+    <Compile Include="Types\Int32Type.cs" />
+    <Compile Include="Types\Int64Type.cs" />
+    <Compile Include="Types\Int8Type.cs" />
+    <Compile Include="Types\IntegerType.cs" />
+    <Compile Include="Types\IPv4Type.cs" />
+    <Compile Include="Types\IPv6Type.cs" />
+    <Compile Include="Types\LowCardinalityType.cs" />
+    <Compile Include="Types\MapType.cs" />
+    <Compile Include="Types\MultiPolygonType.cs" />
+    <Compile Include="Types\NestedType.cs" />
+    <Compile Include="Types\NothingType.cs" />
+    <Compile Include="Types\NullableType.cs" />
+    <Compile Include="Types\ObjectType.cs" />
+    <Compile Include="Types\ParameterizedType.cs" />
+    <Compile Include="Types\PointType.cs" />
+    <Compile Include="Types\PolygonType.cs" />
+    <Compile Include="Types\RingType.cs" />
+    <Compile Include="Types\SimpleAggregateFunctionType.cs" />
+    <Compile Include="Types\StringType.cs" />
+    <Compile Include="Types\TupleType.cs" />
+    <Compile Include="Types\TypeConverter.cs" />
+    <Compile Include="Types\UInt128Type.cs" />
+    <Compile Include="Types\UInt16Type.cs" />
+    <Compile Include="Types\UInt256Type.cs" />
+    <Compile Include="Types\UInt32Type.cs" />
+    <Compile Include="Types\UInt64Type.cs" />
+    <Compile Include="Types\UInt8Type.cs" />
+    <Compile Include="Types\UuidType.cs" />
+    <Compile Include="Types\VariantType.cs" />
+    <Compile Include="Utility\ClickHouseFeatureMap.cs" />
+    <Compile Include="Utility\CommandExtensions.cs" />
+    <Compile Include="Utility\CompressedContent.cs" />
+    <Compile Include="Utility\ConnectionExtensions.cs" />
+    <Compile Include="Utility\DataReaderExtensions.cs" />
+    <Compile Include="Utility\DictionaryExtensions.cs" />
+    <Compile Include="Utility\EnumerableExtensions.cs" />
+    <Compile Include="Utility\EnumToLowercaseStringCached.cs" />
+    <Compile Include="Utility\IsExternalInit.cs" />
+    <Compile Include="Utility\LargeTuple.cs" />
+    <Compile Include="Utility\MathUtils.cs" />
+    <Compile Include="Utility\NameValueCollectionExtensions.cs" />
+    <Compile Include="Utility\SchemaDescriber.cs" />
+    <Compile Include="Utility\SinceVersionAttribute.cs" />
+    <Compile Include="Utility\StringExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

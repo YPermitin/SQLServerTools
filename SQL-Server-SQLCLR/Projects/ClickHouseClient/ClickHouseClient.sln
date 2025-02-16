@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Apps", "Apps", "{7C642548-3BED-4C89-8070-1DAFFE063F48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{8A38C4D0-173F-4C72-84E8-BCC94AED1551}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0324CCD0-9711-4209-84E7-3B28062B2328}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0E777D3D-82EF-4E67-9EF0-7804AEBDC3C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouseClient.CLI", "Apps\ClickHouseClient.CLI\ClickHouseClient.CLI.csproj", "{D3D02050-BD31-460D-8087-76D98A226F78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouseClient", "Libs\ClickHouseClient\ClickHouseClient.csproj", "{DE8E7D56-8A86-4142-84A7-5CEB3162329F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClickHouseClient.Entry", "Libs\ClickHouseClient.Entry\ClickHouseClient.Entry.csproj", "{AC5F49BF-4526-47A3-8034-75F84108CEE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3D02050-BD31-460D-8087-76D98A226F78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D02050-BD31-460D-8087-76D98A226F78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D02050-BD31-460D-8087-76D98A226F78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D02050-BD31-460D-8087-76D98A226F78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE8E7D56-8A86-4142-84A7-5CEB3162329F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE8E7D56-8A86-4142-84A7-5CEB3162329F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE8E7D56-8A86-4142-84A7-5CEB3162329F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE8E7D56-8A86-4142-84A7-5CEB3162329F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC5F49BF-4526-47A3-8034-75F84108CEE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC5F49BF-4526-47A3-8034-75F84108CEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC5F49BF-4526-47A3-8034-75F84108CEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC5F49BF-4526-47A3-8034-75F84108CEE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D3D02050-BD31-460D-8087-76D98A226F78} = {7C642548-3BED-4C89-8070-1DAFFE063F48}
+		{DE8E7D56-8A86-4142-84A7-5CEB3162329F} = {8A38C4D0-173F-4C72-84E8-BCC94AED1551}
+		{AC5F49BF-4526-47A3-8034-75F84108CEE5} = {8A38C4D0-173F-4C72-84E8-BCC94AED1551}
+	EndGlobalSection
+EndGlobal
