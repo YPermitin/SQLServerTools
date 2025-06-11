@@ -1,0 +1,2 @@
+ALTER TABLE dbo.LogTransactionControlSettings ADD
+	MinAllowDataFileFreeSpaceForResumableRebuildMb int NOT NULL CONSTRAINT DF_LogTransactionControlSettings_MinAllowDataFileFreeSpaceForResumableRebuildMb DEFAULT 0

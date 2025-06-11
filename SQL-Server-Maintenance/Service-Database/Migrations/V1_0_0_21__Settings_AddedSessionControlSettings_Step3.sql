@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[SessionControlSettings] ADD  CONSTRAINT [DF_LogTransactionControlSettings_AbortIfLockOtherSessionsTimeoutSec]  DEFAULT ((0)) FOR [AbortIfLockOtherSessionsTimeoutSec]

@@ -1,0 +1,1 @@
+ALTER TABLE [dbo].[SessionControlSettings] ADD  CONSTRAINT [DF_LogTransactionControlSettings_AbortIfLockOtherSessions]  DEFAULT ((0)) FOR [AbortIfLockOtherSessions]
