@@ -487,6 +487,16 @@ INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [check
 GO
 INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (52, 0, N'1.0.0.50', N'Jobs AddedDefaultJobsTemplates (16 ms)', N'V1_0_0_50__Jobs_AddedDefaultJobsTemplates.sql', N'9E6089F3FF8B180ACAB0A7DC7AD91CDF', N'sa', CAST(N'2025-06-11T18:01:12.277' AS DateTime), 1)
 GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (55, 0, N'1.0.0.51', N'Jobs FixProcShrinkDatabaseDataFile (20 ms)', N'V1_0_0_51__Jobs_FixProcShrinkDatabaseDataFile.sql', N'62764189F0213DF7610CDB4BBAA7C54A', N'sa', CAST(N'2025-07-10T03:16:46.290' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (56, 0, N'1.0.0.52', N'Jobs FixProcCompressDatabaseObjects (7 ms)', N'V1_0_0_52__Jobs_FixProcCompressDatabaseObjects.sql', N'9E62BCD31109940CBF570AD117BB812D', N'sa', CAST(N'2025-07-10T03:16:46.297' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (57, 0, N'1.0.0.53', N'Jobs FixProcCompressAndShrinkDataFile (19 ms)', N'V1_0_0_53__Jobs_FixProcCompressAndShrinkDataFile.sql', N'E47742457D9AFBDEBAC452735B3CB9DF', N'sa', CAST(N'2025-07-10T03:24:50.620' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (58, 0, N'1.0.0.54', N'Maintenance FixProcStatisticMaintenance Detailed (20 ms)', N'V1_0_0_54__Maintenance_FixProcStatisticMaintenance_Detailed.sql', N'F561CE210E58A01FE3A1685A5B7A594F', N'sa', CAST(N'2025-07-10T03:36:47.910' AS DateTime), 1)
+GO
+INSERT [dbo].[changelog] ([id], [type], [version], [description], [name], [checksum], [installed_by], [installed_on], [success]) VALUES (59, 0, N'1.0.0.55', N'Maintenance FixProcStatisticMaintenance Sampled (7 ms)', N'V1_0_0_55__Maintenance_FixProcStatisticMaintenance_Sampled.sql', N'6B270B74C834DC5A6AABD6B7DE65C1C5', N'sa', CAST(N'2025-07-10T03:36:47.920' AS DateTime), 1)
+GO
 SET IDENTITY_INSERT [dbo].[changelog] OFF
 GO
 SET IDENTITY_INSERT [dbo].[JobTemplates] ON 
@@ -1984,7 +1994,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-    EXECUTE [SQLServerMonitoring].[dbo].[sp_CompressDatabaseObjects] 
+    EXECUTE [dbo].[sp_CompressDatabaseObjects] 
 		@databaseName = @databaseName,
 		@timeFrom = @timeFrom,
 		@timeTo = @timeTo,
@@ -1992,7 +2002,7 @@ BEGIN
 		@userResumableRebuild = @userResumableRebuild,
 		@maxDop = @maxDop
 	
-	EXECUTE [SQLServerMonitoring].[dbo].[sp_ShrinkDatabaseDataFile]
+	EXECUTE [dbo].[sp_ShrinkDatabaseDataFile]
 		@databaseName = @databaseName,
 		@databaseFileName = @databaseFileNameForShrink,
 		@delayBetweenSteps = @delayBetweenShrinkSteps,
@@ -2032,7 +2042,7 @@ BEGIN
 	-- Включаем контроль потребления ресурсов текущим соединением
 	if(@timeFrom is not null and @timeTo is not null)
 	BEGIN
-		EXEC [SQLServerMonitoring].[dbo].[sp_AddSessionControlSetting]
+		EXEC [dbo].[sp_AddSessionControlSetting]
 			@databaseName = @databaseName,
 			@workFrom = @timeFrom,
 			@workTo = @timeTo,
@@ -2192,7 +2202,7 @@ BEGIN
 			DROP TABLE #dataToCompress;
 
 	-- Удаляем контроль для текущей сессии
-	EXEC [SQLServerMonitoring].[dbo].[sp_RemoveSessionControlSetting];
+	EXEC [dbo].[sp_RemoveSessionControlSetting];
 END
 GO
 /****** Object:  StoredProcedure [dbo].[sp_ControlJobsExecutionTimeout]    Script Date: 11.06.2025 18:05:56 ******/
@@ -5354,7 +5364,8 @@ BEGIN
 
 	DECLARE		
 	   @sql nvarchar(max)
-	   ,@msg nvarchar(max);
+	   ,@msg nvarchar(max)
+	   ,@serviceDatabaseName nvarchar(max) = DB_NAME();
 
 	IF DB_ID(@databaseName) IS NULL
 	BEGIN
@@ -5446,12 +5457,11 @@ BEGIN
 		SELECT @databaseFileName = DataFileName FROM #dataFileInfoByDatabases
 	END
 	ELSE BEGIN
-		PRINT 1
 		IF(NOT EXISTS(SELECT * FROM #dataFileInfoByDatabases WHERE DataFileName = @databaseFileName))
 		BEGIN
 			SET @msg = 'Data file with name ' + @databaseFileName + 'not exists.';
 			THROW 51000, @msg, 1;
-			--RETURN -1;
+			RETURN -1;
 		END
 	END
 
@@ -5466,7 +5476,7 @@ BEGIN
 			-- Включаем контроль потребления ресурсов текущим соединением
 			if(@timeFrom is not null and @timeTo is not null)
 			BEGIN
-				EXEC [SQLServerMonitoring].[dbo].[sp_AddSessionControlSetting]
+				EXEC [' as nvarchar(max)) + CAST(@serviceDatabaseName as nvarchar(max)) + CAST('].[dbo].[sp_AddSessionControlSetting]
 					@databaseName = @databaseName,
 					@workFrom = @timeFrom,
 					@workTo = @timeTo,
@@ -5481,13 +5491,11 @@ BEGIN
 		  WHERE [name] = @databaseFileName
 		  OPTION (RECOMPILE)
 		  set @totalDatabaseSize = @totalDatabaseSize - @shrinkStepMb
-  
-		  PRINT @totalDatabaseSize
 
 		  DBCC SHRINKFILE (@databaseFileName , @totalDatabaseSize)  
 
 		  -- Удаляем контроль для текущей сессии
-		  EXEC [SQLServerMonitoring].[dbo].[sp_RemoveSessionControlSetting];
+		  EXEC [' as nvarchar(max)) + CAST(@serviceDatabaseName as nvarchar(max)) + CAST('].[dbo].[sp_RemoveSessionControlSetting];
 
 		  -- Проверяем границу свободного пространства в файле данных
 		SELECT
@@ -5627,7 +5635,7 @@ CREATE PROCEDURE [dbo].[sp_StatisticMaintenance_Detailed]
 	@ConditionStatisticName nvarchar(max) = 'LIKE ''%''',
 	@MinRowsChangedToMaintenance bigint = 1,
     @useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMonitoring'
+    @monitoringDatabaseName sysname = 'SQLServerMaintenance'
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -5801,7 +5809,7 @@ CREATE PROCEDURE [dbo].[sp_StatisticMaintenance_Sampled]
 	@ConditionStatisticName nvarchar(max) = 'LIKE ''%''',
 	@MinRowsChangedToMaintenance bigint = 1,
     @useMonitoringDatabase bit = 1,
-    @monitoringDatabaseName sysname = 'SQLServerMonitoring'
+    @monitoringDatabaseName sysname = 'SQLServerMaintenance'
 AS
 BEGIN
     SET NOCOUNT ON;

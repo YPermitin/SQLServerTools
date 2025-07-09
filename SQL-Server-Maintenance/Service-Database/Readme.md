@@ -89,7 +89,7 @@ V<ВерсияМиграции>__<ИмяМиграции>.sql
 # **migrate** - говорим, что нужно применить миграции.
 # **sqlserver** - указываем тип СУБД (есть поддержка PostgreSQL и многих других)
 # **-c** (строка подключения) - параметры подключения к базе.
-- **-l** - каталог со списком миграций.
+# **-l** - каталог со списком миграций.
 
 ./evolve migrate sqlserver -c "Server=localhost;Database=SQLServerMaintenance;User Id=sa;Password=<ПарольПользователя>;" -l "/home/ypermitin/Develop/SQLServerTools/SQL-Server-Maintenance/Service-Database/Migrations"
 ```
